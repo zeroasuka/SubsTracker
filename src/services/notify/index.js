@@ -1,9 +1,9 @@
 // @ts-check
 /**
- * 通知调度入口
+ * 通知調度入口
  *
- * 旧 sendNotificationToAllChannels 现在是 dispatch.dispatch 的薄壳，
- * 保留签名向后兼容。新代码请直接使用 dispatch / testChannel。
+ * 舊 sendNotificationToAllChannels 現在是 dispatch.dispatch 的薄殼，
+ * 保留簽名向後兼容。新代碼請直接使用 dispatch / testChannel。
  *
  */
 import { dispatch } from './dispatch.js';
@@ -12,14 +12,14 @@ import { dispatch } from './dispatch.js';
  * @param {string} title
  * @param {string} commonContent
  * @param {any} config
- * @param {string} [logPrefix='[定时任务]']
+ * @param {string} [logPrefix='[定時任務]']
  * @param {{ env?: any, subId?: string, ruleId?: string, metadata?: Object }} [options]
  */
 export async function sendNotificationToAllChannels(
   title,
   commonContent,
   config,
-  logPrefix = '[定时任务]',
+  logPrefix = '[定時任務]',
   options = {}
 ) {
   const result = await dispatch(
@@ -34,7 +34,7 @@ export async function sendNotificationToAllChannels(
     }
   );
 
-  // 旧调用方期望的字段名
+  // 舊調用方期望的字段名
   return {
     attempted: result.attempted,
     successCount: result.successCount,
