@@ -1,7 +1,7 @@
 import { getConfig, setConfig } from '../../data/config.js';
 import { generateRandomSecret, sanitizeNotificationHours } from '../utils.js';
 
-// 这些字段可能包含 token/密钥，绝不下发到浏览器
+// 這些字段可能包含 token/密鑰，絕不下發到瀏覽器
 const SECRET_FIELDS = [
   'TG_BOT_TOKEN',
   'NOTIFYX_API_KEY',
@@ -26,7 +26,7 @@ function buildSafeConfig(config) {
   const { JWT_SECRET, ADMIN_PASSWORD, ...safeConfig } = config;
   const response = { ...safeConfig };
 
-  // 对每个敏感字段：返回空字符串 + 一个 *_CONFIGURED 标记
+  // 對每個敏感字段：返回空字符串 + 一個 *_CONFIGURED 標記
   SECRET_FIELDS.forEach((key) => {
     response[`${key}_CONFIGURED`] = isConfiguredSecret(safeConfig[key]);
     response[key] = '';
@@ -47,7 +47,7 @@ function normalizeClearSecretFields(value) {
 }
 
 function mergeSecretField(existingConfig, newConfig, key, clearSecretFields = []) {
-  // 显式清空优先级最高
+  // 顯式清空優先級最高
   if (clearSecretFields.includes(key)) return '';
 
   const incoming = newConfig?.[key];
@@ -55,10 +55,10 @@ function mergeSecretField(existingConfig, newConfig, key, clearSecretFields = []
 
   const trimmed = incoming.trim();
 
-  // 兼容旧前端：曾用 "********" 作为占位符，表示不修改
+  // 兼容舊前端：曾用 "********" 作為占位符，表示不修改
   if (trimmed === '********') return existingConfig?.[key] || '';
 
-  // 安全默认：空字符串不再代表清空（避免前端未回显导致误清空）
+  // 安全默認：空字符串不再代表清空（避免前端未回顯導致誤清空）
   if (!trimmed) return existingConfig?.[key] || '';
 
   return trimmed;
@@ -146,7 +146,7 @@ async function handleUpdateConfig(request, env) {
 
     if (!updatedConfig.JWT_SECRET || updatedConfig.JWT_SECRET === 'your-secret-key') {
       updatedConfig.JWT_SECRET = generateRandomSecret();
-      console.log('[安全] 生成新的JWT密钥');
+      console.log('[安全] 生成新的JWT密鑰');
     }
 
     await setConfig(env, updatedConfig);
@@ -156,9 +156,9 @@ async function handleUpdateConfig(request, env) {
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('配置保存错误:', error);
+    console.error('配置保存錯誤:', error);
     return new Response(
-      JSON.stringify({ success: false, message: '更新配置失败: ' + error.message }),
+      JSON.stringify({ success: false, message: '更新配置失敗: ' + error.message }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
