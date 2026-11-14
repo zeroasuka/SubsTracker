@@ -1,33 +1,33 @@
 // @ts-check
 /**
- * 通知渠道统一适配器协议
+ * 通知渠道統一適配器協議
  *
- * 所有渠道实现均遵循此 shape：
+ * 所有渠道實現均遵循此 shape：
  *
  *   export const xxxChannel = {
- *     name: 'xxx',                        // 渠道名（必须与 ENABLED_NOTIFIERS / 配置 key 保持一致）
+ *     name: 'xxx',                        // 渠道名（必須與 ENABLED_NOTIFIERS / 配置 key 保持一致）
  *     validateConfig(config) { ... },     // 返回 { ok: true } 或 { ok: false, error: '...' }
- *     async send(payload, config) { ... },// 实际发送
- *     async test(config) { ... }          // 用配置发送一条测试通知
+ *     async send(payload, config) { ... },// 實際發送
+ *     async test(config) { ... }          // 用配置發送一條測試通知
  *   };
  *
- * 这样 dispatch / 通知日志 / 配置页测试按钮可以用同一份代码处理 9 种渠道。
+ * 這樣 dispatch / 通知日志 / 配置頁測試按鈕可以用同一份代碼處理 9 種渠道。
  *
  */
 
 /**
- * @typedef {Object} ChannelPayload 通知内容载荷
- * @property {string} title 标题
- * @property {string} content 正文（Markdown 风格，由各渠道按需转换）
- * @property {Object} [metadata] 元数据（tags、subscriptionId 等）
+ * @typedef {Object} ChannelPayload 通知內容載荷
+ * @property {string} title 標題
+ * @property {string} content 正文（Markdown 風格，由各渠道按需轉換）
+ * @property {Object} [metadata] 元數據（tags、subscriptionId 等）
  */
 
 /**
- * @typedef {Object} ChannelResult 渠道发送结果
+ * @typedef {Object} ChannelResult 渠道發送結果
  * @property {boolean} success 是否成功
  * @property {string} channel 渠道名
- * @property {string} [error] 失败原因（HTTP 错误、API 拒绝等）
- * @property {any} [raw] 三方接口原始返回，便于排查
+ * @property {string} [error] 失敗原因（HTTP 錯誤、API 拒絕等）
+ * @property {any} [raw] 三方接口原始返回，便於排查
  */
 
 /**
@@ -45,10 +45,10 @@
  */
 
 /**
- * Telegram MarkdownV2 转义。
+ * Telegram MarkdownV2 轉義。
  *
- * 修复 #81：订阅名包含 `_*[]()~`>#+-=|{}.!\\` 时 Telegram 会拒绝消息。
- * 注意：这个函数只用于发往 Telegram 的内容，不要污染其他渠道。
+ * 修覆 #81：訂閱名包含 `_*[]()~`>#+-=|{}.!\\` 時 Telegram 會拒絕消息。
+ * 注意：這個函數只用於發往 Telegram 的內容，不要污染其他渠道。
  *
  * @param {string} text
  * @returns {string}
@@ -58,7 +58,7 @@ export function escapeMarkdownV2(text = '') {
 }
 
 /**
- * 把 commonContent 中的 Markdown 标记移除（用于纯文本渠道）。
+ * 把 commonContent 中的 Markdown 標記移除（用於純文本渠道）。
  *
  * @param {string} text
  * @returns {string}
@@ -68,7 +68,7 @@ export function stripMarkdown(text = '') {
 }
 
 /**
- * 构造统一的成功结果。
+ * 構造統一的成功結果。
  *
  * @param {string} name
  * @param {any} [raw]
@@ -79,7 +79,7 @@ export function ok(name, raw) {
 }
 
 /**
- * 构造统一的失败结果。
+ * 構造統一的失敗結果。
  *
  * @param {string} name
  * @param {string} error
@@ -91,7 +91,7 @@ export function fail(name, error, raw) {
 }
 
 /**
- * 把任意 error 转字符串（兼容 fetch 抛出的 TypeError、Response 等）。
+ * 把任意 error 轉字符串（兼容 fetch 拋出的 TypeError、Response 等）。
  *
  * @param {any} err
  * @returns {string}
