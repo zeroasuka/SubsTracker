@@ -1,10 +1,10 @@
 // @ts-check
 /**
- * 通知调度器：把一条通知并发分发到所有启用的渠道，并把结果写入通知日志。
+ * 通知調度器：把一條通知並發分發到所有啟用的渠道，並把結果寫入通知日志。
  *
- * 调用方：
- * - services/scheduler.js（定时到期检查）
- * - api/handlers/test-notification.js（手动测试单个渠道）
+ * 調用方：
+ * - services/scheduler.js（定時到期檢查）
+ * - api/handlers/test-notification.js（手動測試單個渠道）
  * - api/handlers/notify.js（第三方 /api/notify/{token}）
  *
  */
@@ -22,7 +22,7 @@ import { ntfyChannel } from './ntfy.js';
 import { wpushChannel } from './wpush.js';
 import { writeLog } from '../../data/notification-logs.repo.js';
 
-/** 名字到渠道实例的映射；新增渠道在此注册即可 */
+/** 名字到渠道實例的映射；新增渠道在此注冊即可 */
 export const ALL_CHANNELS = {
   telegram: telegramChannel,
   notifyx: notifyxChannel,
@@ -39,18 +39,18 @@ export const ALL_CHANNELS = {
 
 /**
  * @typedef {Object} DispatchOptions
- * @property {any} [env] 若提供，会同时把每条结果写入 notify_log
- * @property {string} [subId] 关联的订阅 ID（写日志用）
- * @property {string} [ruleId] 触发的提醒规则 ID（写日志用）
- * @property {Object} [metadata] 附加给 channel.send 的 metadata
- * @property {string} [logPrefix] console 日志前缀
+ * @property {any} [env] 若提供，會同時把每條結果寫入 notify_log
+ * @property {string} [subId] 關聯的訂閱 ID（寫日志用）
+ * @property {string} [ruleId] 觸發的提醒規則 ID（寫日志用）
+ * @property {Object} [metadata] 附加給 channel.send 的 metadata
+ * @property {string} [logPrefix] console 日志前綴
  */
 
 /**
- * 把一条通知发到所有启用渠道。
+ * 把一條通知發到所有啟用渠道。
  *
  * @param {{ title: string, content: string }} payload
- * @param {any} config 系统配置（含 ENABLED_NOTIFIERS 与各渠道字段）
+ * @param {any} config 系統配置（含 ENABLED_NOTIFIERS 與各渠道字段）
  * @param {DispatchOptions} [options]
  * @returns {Promise<{
  *   attempted: number,
@@ -69,7 +69,7 @@ export async function dispatch(payload, config, options = {}) {
     .filter((ch) => ch != null);
 
   if (channels.length === 0) {
-    console.log(`${prefix} 未启用任何通知渠道`);
+    console.log(`${prefix} 未啟用任何通知渠道`);
     return { attempted: 0, successCount: 0, failedCount: 0, results: [], channelResults: {} };
   }
 
@@ -103,13 +103,13 @@ export async function dispatch(payload, config, options = {}) {
     channelResults[r.channel] = r.success;
     if (r.success) {
       successCount++;
-      console.log(`${prefix} ${r.channel} 发送成功`);
+      console.log(`${prefix} ${r.channel} 發送成功`);
     } else {
       failedCount++;
-      console.log(`${prefix} ${r.channel} 发送失败: ${r.error}`);
+      console.log(`${prefix} ${r.channel} 發送失敗: ${r.error}`);
     }
 
-    // 写通知日志（带 env 时）
+    // 寫通知日志（帶 env 時）
     if (options.env && options.subId) {
       try {
         await writeLog(options.env, {
@@ -123,7 +123,7 @@ export async function dispatch(payload, config, options = {}) {
           raw: r.raw
         });
       } catch (err) {
-        console.warn(`${prefix} 写通知日志失败:`, err);
+        console.warn(`${prefix} 寫通知日志失敗:`, err);
       }
     }
   }
@@ -138,7 +138,7 @@ export async function dispatch(payload, config, options = {}) {
 }
 
 /**
- * 测试某个渠道（用于配置页"测试发送"按钮）。
+ * 測試某個渠道（用於配置頁"測試發送"按鈕）。
  *
  * @param {string} channelName
  * @param {any} config
