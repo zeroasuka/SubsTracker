@@ -1,11 +1,11 @@
-// 注：dashboard 业务逻辑较多，此处不启用 // @ts-check（依赖外部 currency 模块的复杂返回类型）
+// 注：dashboard 業務邏輯較多，此處不啟用 // @ts-check（依賴外部 currency 模塊的覆雜返回類型）
 /**
- * 仪表盘统计 handler
+ * 儀表盤統計 handler
  *
- * 改动：
- * - 用户时区从 config.TIMEZONE 读取（不再硬编码 'UTC'）
- * - schedulerStatus / schedulerStatusHistory 从新的 scheduler-logs.repo 取
- *   旧 'scheduler_status' / 'scheduler_status_history' 已废弃（迁移会清掉）
+ * 改動：
+ * - 用戶時區從 config.TIMEZONE 讀取（不再硬編碼 'UTC'）
+ * - schedulerStatus / schedulerStatusHistory 從新的 scheduler-logs.repo 取
+ *   舊 'scheduler_status' / 'scheduler_status_history' 已廢棄（遷移會清掉）
  *
  */
 import { getAllSubscriptions } from '../../data/subscriptions.js';
@@ -26,13 +26,13 @@ async function handleDashboardStats(env, config) {
     const subscriptions = await getAllSubscriptions(env);
     const timezone = (config && config.TIMEZONE) || 'UTC';
 
-    /** 本次：从结构化日志库读最新调度状态 */
+    /** 本次：從結構化日志庫讀最新調度狀態 */
     let schedulerStatus = null;
     let schedulerStatusHistory = [];
     try {
       const recent = await schedulerLogsRepo.getRecent(env, 10);
       schedulerStatusHistory = recent;
-      // 兼容老前端字段：转一份扁平结构
+      // 兼容老前端字段：轉一份扁平結構
       if (recent.length > 0) {
         const head = recent[0];
         schedulerStatus = {
@@ -53,7 +53,7 @@ async function handleDashboardStats(env, config) {
         };
       }
     } catch (error) {
-      console.error('读取调度日志失败:', error);
+      console.error('讀取調度日志失敗:', error);
     }
 
     const rates = await getDynamicRates(env);
@@ -89,18 +89,18 @@ async function handleDashboardStats(env, config) {
           expenseByCategory,
           schedulerStatus,
           schedulerStatusHistory,
-          /** 新增：用户时区（前端可据此显示） */
+          /** 新增：用戶時區（前端可據此顯示） */
           timezone
         }
       }),
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('获取仪表盘统计失败:', error);
+    console.error('獲取儀表盤統計失敗:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        message: '获取统计数据失败: ' + (error && error.message ? error.message : error)
+        message: '獲取統計數據失敗: ' + (error && error.message ? error.message : error)
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
