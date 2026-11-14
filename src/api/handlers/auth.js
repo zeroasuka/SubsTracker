@@ -3,7 +3,7 @@ import { getConfig } from '../../data/config.js';
 import { getCookieValue } from '../utils.js';
 
 const MAX_LOGIN_ATTEMPTS = 5;
-const LOCKOUT_SECONDS = 300; // 5 分钟
+const LOCKOUT_SECONDS = 300; // 5 分鐘
 
 async function checkRateLimit(env, ip) {
   const key = `login_attempts:${ip}`;
@@ -29,7 +29,7 @@ async function handleLogin(request, env) {
 
   if (await checkRateLimit(env, ip)) {
     return new Response(
-      JSON.stringify({ success: false, message: '登录尝试过多，请 5 分钟后再试' }),
+      JSON.stringify({ success: false, message: '登錄嘗試過多，請 5 分鐘後再試' }),
       { status: 429, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -39,7 +39,7 @@ async function handleLogin(request, env) {
     body = await request.json();
   } catch (e) {
     return new Response(
-      JSON.stringify({ success: false, message: '请求格式错误' }),
+      JSON.stringify({ success: false, message: '請求格式錯誤' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -64,8 +64,8 @@ async function handleLogin(request, env) {
   const attempts = await recordFailedAttempt(env, ip);
   const remaining = MAX_LOGIN_ATTEMPTS - attempts;
   const message = remaining > 0
-    ? `用户名或密码错误（还可尝试 ${remaining} 次）`
-    : '登录尝试过多，请 5 分钟后再试';
+    ? `用戶名或密碼錯誤（還可嘗試 ${remaining} 次）`
+    : '登錄嘗試過多，請 5 分鐘後再試';
 
   return new Response(
     JSON.stringify({ success: false, message }),
