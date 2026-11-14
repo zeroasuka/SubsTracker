@@ -1,20 +1,20 @@
 // @ts-check
 /**
- * 货币格式化共享工具
+ * 貨幣格式化共享工具
  *
- * 早期版本曾在不同代码路径（添加表单 / 列表 / 通知正文 / 历史 / 第三方触发）
- * 中重复定义了 currencySymbols，且偶尔默认回退 ¥（CNY 符号）造成币种与展示不一致。
+ * 早期版本曾在不同代碼路徑（添加表單 / 列表 / 通知正文 / 歷史 / 第三方觸發）
+ * 中重覆定義了 currencySymbols，且偶爾默認回退 ¥（CNY 符號）造成幣種與展示不一致。
  *
- * 统一使用本模块：
+ * 統一使用本模塊：
  *   formatAmount(123.45, 'USD')   → '$123.45'
- *   formatAmount(123.45, 'JPY')   → 'JP¥123.45'   （JPY 与 CNY 同符号但加前缀以避免歧义）
+ *   formatAmount(123.45, 'JPY')   → 'JP¥123.45'   （JPY 與 CNY 同符號但加前綴以避免歧義）
  *   formatAmount(null, 'USD')     → ''
  *
  */
 
 /**
- * 币种 → 符号（前缀）映射。
- * JPY 故意使用 'JP¥' 前缀以避免与 CNY 的 ¥ 混淆。
+ * 幣種 → 符號（前綴）映射。
+ * JPY 故意使用 'JP¥' 前綴以避免與 CNY 的 ¥ 混淆。
  */
 export const CURRENCY_SYMBOLS = {
   CNY: '¥',
@@ -29,7 +29,7 @@ export const CURRENCY_SYMBOLS = {
 };
 
 /**
- * 取币种符号，未知币种回退到币种代码本身。
+ * 取幣種符號，未知幣種回退到幣種代碼本身。
  *
  * @param {string} [currency='CNY']
  * @returns {string}
@@ -40,7 +40,7 @@ export function getCurrencySymbol(currency = 'CNY') {
 }
 
 /**
- * 格式化金额字符串，amount 为空时返回空串。
+ * 格式化金額字符串，amount 為空時返回空串。
  *
  * @param {number|string|null|undefined} amount
  * @param {string} [currency='CNY']
