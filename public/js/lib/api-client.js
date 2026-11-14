@@ -1,12 +1,12 @@
 /**
- * 简易 API 客户端
+ * 簡易 API 客戶端
  *
- * 用法（浏览器全局）：
+ * 用法（瀏覽器全局）：
  *   <script src="/js/lib/api-client.js"></script>
  *   const r = await ApiClient.get('/api/notification-logs');
  *
- * 所有方法都返回解析后的 JSON；HTTP 非 2xx 会抛出含 status / body 的 Error。
- * 自动带 Cookie（凭着站内 SameSite=Strict 的 token）。
+ * 所有方法都返回解析後的 JSON；HTTP 非 2xx 會拋出含 status / body 的 Error。
+ * 自動帶 Cookie（憑著站內 SameSite=Strict 的 token）。
  */
 (function (root) {
   'use strict';
@@ -27,7 +27,7 @@
     try {
       data = await res.json();
     } catch {
-      // 非 JSON 响应，保留 null
+      // 非 JSON 響應，保留 null
     }
     if (res.status === 401) {
       try {
@@ -35,7 +35,7 @@
           window.location.href = '/';
         }
       } catch (_) { /* ignore */ }
-      const err = new Error((data && data.message) || '未授权访问');
+      const err = new Error((data && data.message) || '未授權訪問');
       // @ts-ignore
       err.status = 401;
       // @ts-ignore
@@ -54,7 +54,7 @@
   }
 
   /**
-   * 简易查询字符串构造（None / undefined 字段过滤掉）。
+   * 簡易查詢字符串構造（None / undefined 字段過濾掉）。
    *
    * @param {Record<string, any>} params
    * @returns {string}
