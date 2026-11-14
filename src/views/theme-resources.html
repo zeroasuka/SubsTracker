@@ -1,10 +1,10 @@
 
 <style>
-  /* === 全局暗黑模式核心变量与覆盖 === */
+  /* === 全局暗黑模式核心變量與覆蓋 === */
   :root {
     --dark-bg-primary: #111827;   /* 深灰/黑背景 */
     --dark-bg-secondary: #1f2937; /* 卡片/容器背景 */
-    --dark-border: #374151;       /* 边框颜色 */
+    --dark-border: #374151;       /* 邊框顏色 */
     --dark-text-main: #f9fafb;    /* 主要文字 */
     --dark-text-muted: #9ca3af;   /* 次要文字 */
   }
@@ -50,7 +50,7 @@
   }
   html.dark tbody tr:hover { background-color: #374151 !important; }
   html.dark tbody tr.bg-gray-100 { background-color: #374151 !important; }
-  /* 弹窗与日期选择器 */
+  /* 彈窗與日期選擇器 */
   html.dark .custom-date-picker { background-color: var(--dark-bg-secondary); border-color: var(--dark-border); }
   html.dark .custom-date-picker .calendar-day { color: #e5e7eb; }
   html.dark .custom-date-picker .calendar-day:hover { background-color: #374151; }
@@ -76,7 +76,7 @@
   }
   html.dark .hover-text:hover, html.dark .notes-text:hover { color: #93c5fd; }
 
-  /* === 统一按钮样式 tokens === */
+  /* === 統一按鈕樣式 tokens === */
   .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(99, 102, 241, 0.25); }
   .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(99, 102, 241, 0.35); }
   .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(107, 114, 128, 0.25); }
@@ -94,18 +94,18 @@
   .btn-history { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(168, 85, 247, 0.25); color: #fff; }
   .btn-history:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(168, 85, 247, 0.35); }
 
-  @media (max-width: 767px) {   /* === 移动端表格样式(高对比度版) === */
-    html.dark .responsive-table td:before {  /* 强制提亮移动端表格的 Label */
-      color: #e5e7eb !important;    /* 改为极亮的浅灰色 (接近纯白) */
-      font-weight: 700 !important;  /* 加粗字体 */
+  @media (max-width: 767px) {   /* === 移動端表格樣式(高對比度版) === */
+    html.dark .responsive-table td:before {  /* 強制提亮移動端表格的 Label */
+      color: #e5e7eb !important;    /* 改為極亮的淺灰色 (接近純白) */
+      font-weight: 700 !important;  /* 加粗字體 */
       opacity: 1 !important;
-      text-transform: uppercase;    /* 可选：增加大写使其更突出 */
+      text-transform: uppercase;    /* 可選：增加大寫使其更突出 */
       letter-spacing: 0.05em;
     }
     html.dark .responsive-table tr {
       border-color: #374151 !important;
       background-color: #1f2937 !important;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important; /* 阴影稍微加深 */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important; /* 陰影稍微加深 */
     }
     
     html.dark .responsive-table td {
