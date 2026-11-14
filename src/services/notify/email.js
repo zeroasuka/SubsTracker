@@ -1,12 +1,12 @@
 // @ts-check
 /**
- * 邮件通知渠道（Resend API）
+ * 郵件通知渠道（Resend API）
  */
 import { ok, fail, errorMessage, stripMarkdown } from './channel.js';
 import { formatLocalDate } from '../../core/time.js';
 
 /**
- * 构造 HTML 模板。
+ * 構造 HTML 模板。
  * @param {string} title
  * @param {string} content
  * @param {string} timezone
@@ -30,9 +30,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
   <div class="header"><h1>📅 ${safe(title)}</h1></div>
   <div class="content">
     <div class="highlight">${safe(stripMarkdown(content)).replace(/\n/g, '<br>')}</div>
-    <p style="color:#666;line-height:1.6;">此邮件由订阅管理系统自动发送，请及时处理相关订阅事务。</p>
+    <p style="color:#666;line-height:1.6;">此郵件由訂閱管理系統自動發送，請及時處理相關訂閱事務。</p>
   </div>
-  <div class="footer"><p>订阅管理系统 | 发送时间: ${safe(ts)}</p></div>
+  <div class="footer"><p>訂閱管理系統 | 發送時間: ${safe(ts)}</p></div>
 </div>
 </body></html>`;
 }
@@ -50,7 +50,7 @@ export const emailChannel = {
 
   async send(payload, config) {
     const v = emailChannel.validateConfig(config);
-    if (!v.ok) return fail('email', v.error || '配置无效');
+    if (!v.ok) return fail('email', v.error || '配置無效');
 
     const fromEmail = config.EMAIL_FROM_NAME
       ? `${config.EMAIL_FROM_NAME} <${config.EMAIL_FROM}>`
@@ -82,13 +82,13 @@ export const emailChannel = {
 
   async test(config) {
     return emailChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条邮件测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條郵件測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版兼容函數 */
 export async function sendEmailNotification(title, content, config) {
   const r = await emailChannel.send({ title, content }, config);
   if (!r.success) console.error('[Email]', r.error);
