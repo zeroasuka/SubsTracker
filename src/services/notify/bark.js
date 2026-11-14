@@ -2,9 +2,9 @@
 /**
  * Bark 通知渠道（iOS）
  *
- * 支持两种 URL 模式：
- *   1. 标准：BARK_SERVER + BARK_DEVICE_KEY → POST {server}/push
- *   2. 自定义：BARK_SERVER 路径不为 / → POST {server}（已含 key 的完整 URL）
+ * 支持兩種 URL 模式：
+ *   1. 標準：BARK_SERVER + BARK_DEVICE_KEY → POST {server}/push
+ *   2. 自定義：BARK_SERVER 路徑不為 / → POST {server}（已含 key 的完整 URL）
  */
 import { ok, fail, errorMessage, stripMarkdown } from './channel.js';
 
@@ -21,7 +21,7 @@ export const barkChannel = {
 
   async send(payload, config) {
     const v = barkChannel.validateConfig(config);
-    if (!v.ok) return fail('bark', v.error || '配置无效');
+    if (!v.ok) return fail('bark', v.error || '配置無效');
 
     const serverUrl = (config.BARK_SERVER || 'https://api.day.app').replace(/\/+$/, '');
 
@@ -42,7 +42,7 @@ export const barkChannel = {
         url = parsed.href.replace(/\/+$/, '');
         body = { title: payload.title, body: stripMarkdown(payload.content) };
       } else {
-        if (!config.BARK_DEVICE_KEY) return fail('bark', '标准 Bark API 缺少 BARK_DEVICE_KEY');
+        if (!config.BARK_DEVICE_KEY) return fail('bark', '標準 Bark API 缺少 BARK_DEVICE_KEY');
         url = `${parsed.href.replace(/\/+$/, '')}/push`;
         body = {
           title: payload.title,
@@ -73,13 +73,13 @@ export const barkChannel = {
 
   async test(config) {
     return barkChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条 Bark 测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條 Bark 測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版兼容函數 */
 export async function sendBarkNotification(title, content, config) {
   const r = await barkChannel.send({ title, content }, config);
   if (!r.success) console.error('[Bark]', r.error);
