@@ -1,4 +1,4 @@
-// 农历转换与业务工具
+// 農歷轉換與業務工具
 const lunarCalendar = {
   lunarInfo: [
     0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,
@@ -25,8 +25,8 @@ const lunarCalendar = {
   ],
 
   gan: ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'],
-  zhi: ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
-  months: ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'],
+  zhi: ['子', '醜', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'],
+  months: ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'],
   days: ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
          '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
          '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'],
@@ -110,7 +110,7 @@ const lunarCalendar = {
     const ganIndex = (lunarYear - 4) % 10;
     const zhiIndex = (lunarYear - 4) % 12;
     const yearStr = this.gan[ganIndex] + this.zhi[zhiIndex] + '年';
-    const monthStr = (isLeap ? '闰' : '') + this.months[lunarMonth - 1] + '月';
+    const monthStr = (isLeap ? '閏' : '') + this.months[lunarMonth - 1] + '月';
     const dayStr = this.days[lunarDay - 1];
 
     return {
