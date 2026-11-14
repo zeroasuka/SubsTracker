@@ -8,18 +8,18 @@ async function handleAdminRequest(request, env) {
     const url = new URL(request.url);
     const pathname = url.pathname;
 
-    console.log('[管理页面] 访问路径:', pathname);
+    console.log('[管理頁面] 訪問路徑:', pathname);
 
     const token = getCookieValue(request.headers.get('Cookie'), 'token');
-    console.log('[管理页面] Token存在:', !!token);
+    console.log('[管理頁面] Token存在:', !!token);
 
     const config = await getConfig(env);
     const user = token ? await verifyJWT(token, config.JWT_SECRET) : null;
 
-    console.log('[管理页面] 用户验证结果:', !!user);
+    console.log('[管理頁面] 用戶驗證結果:', !!user);
 
     if (!user) {
-      console.log('[管理页面] 用户未登录，重定向到登录页面');
+      console.log('[管理頁面] 用戶未登錄，重定向到登錄頁面');
       return new Response('', {
         status: 302,
         headers: { 'Location': '/' }
@@ -48,8 +48,8 @@ async function handleAdminRequest(request, env) {
       headers: { 'Content-Type': 'text/html; charset=utf-8' }
     });
   } catch (error) {
-    console.error('[管理页面] 处理请求时出错:', error);
-    return new Response('服务器内部错误', {
+    console.error('[管理頁面] 處理請求時出錯:', error);
+    return new Response('服務器內部錯誤', {
       status: 500,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
