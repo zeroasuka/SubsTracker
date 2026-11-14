@@ -2,7 +2,7 @@ import { MS_PER_DAY, getCurrentTimeInTimezone, getTimezoneDateParts } from './ti
 
 const CATEGORY_SEPARATOR_REGEX = /[\/，,\s]+/;
 
-// 汇率配置 (以 CNY 为基准，当 API 不可用或缺少特定币种如 TWD 时使用)
+// 匯率配置 (以 CNY 為基準，當 API 不可用或缺少特定幣種如 TWD 時使用)
 const FALLBACK_RATES = {
   'CNY': 1,
   'USD': 6.98,
@@ -17,7 +17,7 @@ const FALLBACK_RATES = {
 
 async function getDynamicRates(env) {
   const CACHE_KEY = 'SYSTEM_EXCHANGE_RATES';
-  const CACHE_TTL = 86400000; // 24小时
+  const CACHE_TTL = 86400000; // 24小時
 
   try {
     const cached = await env.SUBSCRIPTIONS_KV.get(CACHE_KEY, { type: 'json' });
@@ -40,10 +40,10 @@ async function getDynamicRates(env) {
 
       return newRates;
     } else {
-      console.warn('[汇率] API 请求失败，使用兜底汇率');
+      console.warn('[匯率] API 請求失敗，使用兜底匯率');
     }
   } catch (error) {
-    console.error('[汇率] 获取过程出错:', error);
+    console.error('[匯率] 獲取過程出錯:', error);
   }
   return FALLBACK_RATES;
 }
@@ -187,7 +187,7 @@ function getExpenseByType(subscriptions, timezone, rates) {
       const paymentDate = new Date(payment.date);
       const paymentParts = getTimezoneDateParts(paymentDate, timezone);
       if (paymentParts.year === currentYear) {
-        const type = sub.customType || '未分类';
+        const type = sub.customType || '未分類';
         const amountCNY = convertToCNY(payment.amount, sub.currency, rates);
         typeMap[type] = (typeMap[type] || 0) + amountCNY;
         total += amountCNY;
@@ -218,11 +218,11 @@ function getExpenseByCategory(subscriptions, timezone, rates) {
       const paymentDate = new Date(payment.date);
       const paymentParts = getTimezoneDateParts(paymentDate, timezone);
       if (paymentParts.year === currentYear) {
-        const categories = sub.category ? sub.category.split(CATEGORY_SEPARATOR_REGEX).filter(c => c.trim()) : ['未分类'];
+        const categories = sub.category ? sub.category.split(CATEGORY_SEPARATOR_REGEX).filter(c => c.trim()) : ['未分類'];
         const amountCNY = convertToCNY(payment.amount, sub.currency, rates);
 
         categories.forEach(category => {
-          const cat = category.trim() || '未分类';
+          const cat = category.trim() || '未分類';
           categoryMap[cat] = (categoryMap[cat] || 0) + amountCNY / categories.length;
         });
         total += amountCNY;
