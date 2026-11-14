@@ -22,7 +22,7 @@ async function handleApiRequest(request, env) {
     return handleLogout();
   }
 
-  // 第三方通知 API 使用独立 token 鉴权，必须在 JWT 门禁之前放行
+  // 第三方通知 API 使用獨立 token 鑒權，必須在 JWT 門禁之前放行
   if (path.startsWith('/notify/')) {
     const thirdPartyResponse = await handleThirdPartyNotify(request, env, config, url);
     if (thirdPartyResponse) return thirdPartyResponse;
@@ -31,7 +31,7 @@ async function handleApiRequest(request, env) {
   const { user } = await getUserFromRequest(request, env);
   if (!user && path !== '/login') {
     return new Response(
-      JSON.stringify({ success: false, message: '未授权访问' }),
+      JSON.stringify({ success: false, message: '未授權訪問' }),
       { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -49,7 +49,7 @@ async function handleApiRequest(request, env) {
     return handleTestNotification(request, env);
   }
 
-  // 备份 / 恢复
+  // 備份 / 恢覆
   if (path === '/backup' && method === 'GET') {
     const { handleExportBackup } = await import('./handlers/backup.js');
     return handleExportBackup(request, env);
@@ -59,7 +59,7 @@ async function handleApiRequest(request, env) {
     return handleImportBackup(request, env);
   }
 
-  // 新增路由：提醒规则 / 通知日志 / 调度日志（提醒规则 / 通知日志 / 调度日志）
+  // 新增路由：提醒規則 / 通知日志 / 調度日志（提醒規則 / 通知日志 / 調度日志）
   const extraResponse = await handleExtraRoutes(request, env, path);
   if (extraResponse) return extraResponse;
 
@@ -70,7 +70,7 @@ async function handleApiRequest(request, env) {
   if (thirdPartyResponse) return thirdPartyResponse;
 
   return new Response(
-    JSON.stringify({ success: false, message: '未找到请求的资源' }),
+    JSON.stringify({ success: false, message: '未找到請求的資源' }),
     { status: 404, headers: { 'Content-Type': 'application/json' } }
   );
 }
