@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * 调度器 after_expiry 行为：当前未传 lastFireAtIso，依赖小时 dedupe 节流
- * 记录设计现状，防止静默回归
+ * 排程器 after_expiry 行為：當前未傳 lastFireAtIso，依賴小時 dedupe 節流
+ * 記錄設計現狀，防止靜默迴歸
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -34,8 +34,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('after_expiry 引擎 vs 调度器', () => {
-  it('引擎：无 lastFireAtIso 时首次应 fire', () => {
+describe('after_expiry 引擎 vs 排程器', () => {
+  it('引擎：無 lastFireAtIso 時首次應 fire', () => {
     const r = shouldFire(
       {
         id: '1',
@@ -51,7 +51,7 @@ describe('after_expiry 引擎 vs 调度器', () => {
     expect(r.fire).toBe(true);
   });
 
-  it('引擎：间隔内有 lastFireAtIso 不 fire', () => {
+  it('引擎：間隔內有 lastFireAtIso 不 fire', () => {
     const r = shouldFire(
       {
         id: '1',
@@ -72,7 +72,7 @@ describe('after_expiry 引擎 vs 调度器', () => {
     expect(r.fire).toBe(false);
   });
 
-  it('调度器：已过期 + after_expiry 在窗口内会匹配（无 lastFireAtIso）', async () => {
+  it('排程器：已過期 + after_expiry 在視窗內會匹配（無 lastFireAtIso）', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-10T08:00:00Z'));
     await env.SUBSCRIPTIONS_KV.put(

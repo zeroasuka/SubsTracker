@@ -1,10 +1,10 @@
 // @ts-check
 /**
- * 調試頁（僅登錄後可見）
+ * 除錯頁（僅登入後可見）
  *
  * 用途：
- * - 檢查 KV 綁定、配置完整性、JWT 密鑰狀態
- * - 新增"時區診斷"區塊，直觀展示 UTC vs 用戶 TZ 的當前小時差異
+ * - 檢查 KV 繫結、配置完整性、JWT 金鑰狀態
+ * - 新增"時區診斷"區塊，直觀展示 UTC vs 使用者 TZ 的當前小時差異
  *   這是 #91 / #52 / #166 類問題的自助排查入口
  *
  */
@@ -16,7 +16,7 @@ import {
 } from '../core/time.js';
 import * as schedLogs from '../data/scheduler-logs.repo.js';
 
-/** 簡單 HTML 轉義，防止配置中的字符串污染頁面 */
+/** 簡單 HTML 轉義，防止配置中的字串汙染頁面 */
 function esc(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -33,7 +33,7 @@ async function handleDebug(request, env) {
   try {
     const url = new URL(request.url);
 
-    // 子路由：導出最近 N 條調度日志（JSON）
+    // 子路由：匯出最近 N 條排程日誌（JSON）
     if (url.searchParams.get('export') === 'sched_logs') {
       const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 50)));
       const logs = await schedLogs.getRecent(env, limit);
@@ -78,10 +78,10 @@ async function handleDebug(request, env) {
 
     return new Response(
       `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <title>調試信息 - SubsTracker</title>
+  <title>除錯資訊 - SubsTracker</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", monospace; padding: 20px; background: #f5f5f5; color: #333; }
     h1 { font-size: 22px; }
@@ -97,16 +97,16 @@ async function handleDebug(request, env) {
   </style>
 </head>
 <body>
-  <h1>系統調試信息</h1>
+  <h1>系統除錯資訊</h1>
 
   <div class="info">
     <h3>基本</h3>
     <div class="row"><span class="k">UTC 時間</span><span class="v">${esc(debugInfo.timestamp)}</span></div>
     <div class="row"><span class="k">訪問路徑</span><span class="v">${esc(debugInfo.pathname)}</span></div>
-    <div class="row"><span class="k">KV 綁定</span><span class="v ${debugInfo.kvBinding ? 'success' : 'error'}">${debugInfo.kvBinding ? '✓ 已綁定' : '✗ 未綁定'}</span></div>
+    <div class="row"><span class="k">KV 繫結</span><span class="v ${debugInfo.kvBinding ? 'success' : 'error'}">${debugInfo.kvBinding ? '✓ 已繫結' : '✗ 未繫結'}</span></div>
     <div class="row"><span class="k">配置可讀</span><span class="v ${debugInfo.configExists ? 'success' : 'error'}">${debugInfo.configExists ? '✓' : '✗'}</span></div>
-    <div class="row"><span class="k">管理員用戶名</span><span class="v">${esc(debugInfo.adminUsername || '(未設置)')}</span></div>
-    <div class="row"><span class="k">JWT 密鑰</span><span class="v ${debugInfo.hasJwtSecret ? 'success' : 'error'}">${debugInfo.hasJwtSecret ? `✓ 已設置 (${debugInfo.jwtSecretLength} 字符)` : '✗ 缺失'}</span></div>
+    <div class="row"><span class="k">管理員使用者名稱</span><span class="v">${esc(debugInfo.adminUsername || '(未設定)')}</span></div>
+    <div class="row"><span class="k">JWT 金鑰</span><span class="v ${debugInfo.hasJwtSecret ? 'success' : 'error'}">${debugInfo.hasJwtSecret ? `✓ 已設定 (${debugInfo.jwtSecretLength} 字元)` : '✗ 缺失'}</span></div>
   </div>
 
   <div class="info">
@@ -114,26 +114,26 @@ async function handleDebug(request, env) {
     <div class="row"><span class="k">配置的時區</span><span class="v">${esc(debugInfo.timezoneDisplay)}</span></div>
     <div class="row"><span class="k">時區偏移</span><span class="v">UTC${debugInfo.timezoneOffsetHours >= 0 ? '+' : ''}${debugInfo.timezoneOffsetHours} 小時</span></div>
     <div class="row"><span class="k">當前 UTC</span><span class="v">${esc(debugInfo.utcIso)}</span></div>
-    <div class="row"><span class="k">當前用戶本地時間</span><span class="v">${esc(debugInfo.localIso)}</span></div>
+    <div class="row"><span class="k">當前使用者本地時間</span><span class="v">${esc(debugInfo.localIso)}</span></div>
     <div class="row"><span class="k">用於通知時段判斷的小時</span><span class="v">${esc(debugInfo.currentHour)}</span></div>
-    <div class="row"><span class="k">配置的通知小時（用戶 TZ）</span><span class="v">${notificationHours.length === 0 ? '<em class="warn">空（默認全天發送）</em>' : `<code>${esc(notificationHours.join(', '))}</code>`}</span></div>
-    <div class="row"><span class="k">現在是否允許發送</span><span class="v ${debugInfo.inNotificationWindow ? 'success' : 'warn'}">${debugInfo.inNotificationWindow ? '✓ 在窗口內' : '✗ 不在窗口內'}</span></div>
+    <div class="row"><span class="k">配置的通知小時（使用者 TZ）</span><span class="v">${notificationHours.length === 0 ? '<em class="warn">空（預設全天傳送）</em>' : `<code>${esc(notificationHours.join(', '))}</code>`}</span></div>
+    <div class="row"><span class="k">現在是否允許傳送</span><span class="v ${debugInfo.inNotificationWindow ? 'success' : 'warn'}">${debugInfo.inNotificationWindow ? '✓ 在視窗內' : '✗ 不在視窗內'}</span></div>
   </div>
 
   <div class="info">
     <h3>提示</h3>
     <p>1. 如果時區診斷中"當前小時"與你預期不符，請檢查配置中的 <code>TIMEZONE</code> 是否與你所在地匹配。</p>
     <p>2. 本版本 <code>NOTIFICATION_HOURS</code> <strong>按你配置的時區</strong>解釋（不再是 UTC）。例如想讓北京時間 8 點收到通知，<code>TIMEZONE=Asia/Shanghai</code> 時填 <code>08</code>。</p>
-    <p>3. 詳細發送記錄請前往後台"通知歷史"頁（後續版本提供）。</p>
-    <p>4. <a href="/admin">返回管理後台</a></p>
-    <p>5. <a href="/debug?export=sched_logs&limit=50">📥 導出最近 50 條調度執行日志（JSON）</a></p>
+    <p>3. 詳細傳送記錄請前往後臺"通知歷史"頁（後續版本提供）。</p>
+    <p>4. <a href="/admin">返回管理後臺</a></p>
+    <p>5. <a href="/debug?export=sched_logs&limit=50">📥 匯出最近 50 條排程執行日誌（JSON）</a></p>
   </div>
 </body>
 </html>`,
       { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
     );
   } catch (error) {
-    return new Response(`調試頁面錯誤: ${error && error.message ? error.message : error}`, {
+    return new Response(`除錯頁面錯誤: ${error && error.message ? error.message : error}`, {
       status: 500,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });

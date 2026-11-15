@@ -67,7 +67,7 @@ async function verifyJWT(token, secret) {
         return null;
       }
     }
-    console.log('[JWT] 驗證成功，用戶:', payload.username);
+    console.log('[JWT] 驗證成功，使用者:', payload.username);
     return payload;
   } catch (error) {
     console.error('[JWT] 驗證過程出錯:', error);

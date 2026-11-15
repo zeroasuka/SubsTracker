@@ -5,7 +5,7 @@ dist/
 coverage/
 .DS_Store
 
-# 本地调研 / 审计草稿 / 内部文档，不入库
+# 本地調研 / 審計草稿 / 內部文件，不入庫
 优化文档/
 CHANGELOG-TEST.md
 docs/
@@ -18,14 +18,14 @@ FULL_AUDIT_REPORT.md
 .agents/
 .claude/
 
-# 环境变量与密钥（严禁提交）
+# 環境變數與金鑰（嚴禁提交）
 .env
 .env.*
 .dev.vars
 *.pem
 *.key
 
-# 编辑器 / 系统
+# 編輯器 / 系統
 .idea/
 .vscode/
 *.swp

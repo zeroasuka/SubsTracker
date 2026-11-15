@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 端到端：创建订阅 → 配置提醒 → 模拟到期调度 → 通知日志 → 续订 → 删除清理
+ * 端到端：建立訂閱 → 配置提醒 → 模擬到期排程 → 通知日誌 → 續訂 → 刪除清理
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -61,11 +61,11 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('订阅生命周期 e2e', () => {
-  it('创建→规则→到期前触发→日志→续订→删除清理', async () => {
+describe('訂閱生命週期 e2e', () => {
+  it('建立→規則→到期前觸發→日誌→續訂→刪除清理', async () => {
     const cookie = await loginCookie();
 
-    // 1) 创建：到期日设为 7 天后（UTC）
+    // 1) 建立：到期日設為 7 天後（UTC）
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-01T08:00:00Z'));
 
@@ -94,7 +94,7 @@ describe('订阅生命周期 e2e', () => {
     expect(created.success).toBe(true);
     const id = created.subscription.id;
 
-    // 2) 确认规则
+    // 2) 確認規則
     const rulesRes = await app.request(
       '/api/subscriptions/' + id + '/reminders',
       { headers: { Cookie: cookie } },
@@ -103,18 +103,18 @@ describe('订阅生命周期 e2e', () => {
     const rulesBody = await rulesRes.json();
     expect(rulesBody.rules.some((r) => r.value === 7)).toBe(true);
 
-    // 3) 调度：剩余 7 天应触发 before_expiry=7
+    // 3) 排程：剩餘 7 天應觸發 before_expiry=7
     const sched = await checkExpiringSubscriptions(env);
     expect(sched).toBeTruthy();
     expect(sched.matchedCount).toBeGreaterThanOrEqual(1);
     expect(sched.sentCount).toBeGreaterThanOrEqual(0);
 
-    // 4) 通知日志（若渠道成功）
+    // 4) 通知日誌（若渠道成功）
     const logs = await queryNotifyLogs(env, { subId: id, limit: 20 });
-    // webhook mock 成功时应有日志；至少调度不应 error
+    // webhook mock 成功時應有日誌；至少排程不應 error
     expect(['ok', 'skipped', 'error']).toContain(sched.status);
 
-    // 5) 续订
+    // 5) 續訂
     const renewRes = await app.request(
       '/api/subscriptions/' + id + '/renew',
       {
@@ -131,7 +131,7 @@ describe('订阅生命周期 e2e', () => {
       new Date(created.subscription.expiryDate).getTime()
     );
 
-    // 6) 删除并清理规则
+    // 6) 刪除並清理規則
     const del = await app.request(
       '/api/subscriptions/' + id,
       { method: 'DELETE', headers: { Cookie: cookie } },

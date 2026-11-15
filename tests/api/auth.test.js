@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * 认证相关测试
- * 覆盖：登录成功/失败、限流、登出、JWT 签名与过期校验
+ * 認證相關測試
+ * 覆蓋：登入成功/失敗、限流、登出、JWT 簽名與過期校驗
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 // @ts-ignore
@@ -31,7 +31,7 @@ afterEach(() => {
 });
 
 describe('POST /api/login', () => {
-  it('正确凭据 → 200 + Set-Cookie token', async () => {
+  it('正確憑據 → 200 + Set-Cookie token', async () => {
     await seedAdmin();
     const res = await app.request(
       '/api/login',
@@ -49,7 +49,7 @@ describe('POST /api/login', () => {
     expect(res.headers.get('Set-Cookie') || '').toMatch(/HttpOnly/i);
   });
 
-  it('错误密码 → success=false', async () => {
+  it('錯誤密碼 → success=false', async () => {
     await seedAdmin();
     const res = await app.request(
       '/api/login',
@@ -62,10 +62,10 @@ describe('POST /api/login', () => {
     );
     const body = await res.json();
     expect(body.success).toBe(false);
-    expect(String(body.message)).toMatch(/错误|尝试/);
+    expect(String(body.message)).toMatch(/錯誤|嘗試/);
   });
 
-  it('连续失败 5 次后限流 429', async () => {
+  it('連續失敗 5 次後限流 429', async () => {
     await seedAdmin();
     for (let i = 0; i < 5; i++) {
       await app.request(
@@ -98,7 +98,7 @@ describe('POST /api/login', () => {
 });
 
 describe('GET /api/logout', () => {
-  it('清除 cookie 并重定向', async () => {
+  it('清除 cookie 並重定向', async () => {
     await seedAdmin();
     const res = await app.request('/api/logout', { method: 'GET' }, env);
     expect([302, 200].includes(res.status)).toBe(true);
@@ -107,29 +107,29 @@ describe('GET /api/logout', () => {
   });
 });
 
-describe('JWT 单元', () => {
-  it('签名正确可验证', async () => {
+describe('JWT 單元', () => {
+  it('簽名正確可驗證', async () => {
     const token = await generateJWT('admin', 'sec');
     const payload = await verifyJWT(token, 'sec');
     expect(payload).toBeTruthy();
     expect(payload.username).toBe('admin');
   });
 
-  it('错误密钥验证失败', async () => {
+  it('錯誤金鑰驗證失敗', async () => {
     const token = await generateJWT('admin', 'sec');
     expect(await verifyJWT(token, 'other')).toBeNull();
   });
 
-  it('过期 token 验证失败', async () => {
+  it('過期 token 驗證失敗', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
     const token = await generateJWT('admin', 'sec');
-    // 推进超过 24h
+    // 推進超過 24h
     vi.setSystemTime(new Date('2026-01-03T00:00:00Z'));
     expect(await verifyJWT(token, 'sec')).toBeNull();
   });
 
-  it('篡改 payload 后签名失败', async () => {
+  it('篡改 payload 後簽名失敗', async () => {
     const token = await generateJWT('admin', 'sec');
     const parts = token.split('.');
     const fakePayload = btoa(JSON.stringify({ username: 'hacker', exp: 9999999999 }));
@@ -138,8 +138,8 @@ describe('JWT 单元', () => {
   });
 });
 
-describe('受保护路由鉴权', () => {
-  it('过期 cookie 访问 /api/config → 401', async () => {
+describe('受保護路由鑑權', () => {
+  it('過期 cookie 訪問 /api/config → 401', async () => {
     await seedAdmin();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));

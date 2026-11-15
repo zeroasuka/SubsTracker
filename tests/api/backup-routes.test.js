@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 备份 / 恢复 API 测试
+ * 備份 / 恢復 API 測試
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 // @ts-ignore
@@ -44,12 +44,12 @@ async function loginCookie() {
 beforeEach(clearKv);
 
 describe('GET /api/backup', () => {
-  it('未授权 → 401', async () => {
+  it('未授權 → 401', async () => {
     const res = await app.request('/api/backup', {}, env);
     expect(res.status).toBe(401);
   });
 
-  it('默认导出不含密钥，含订阅与规则', async () => {
+  it('預設匯出不含金鑰，含訂閱與規則', async () => {
     const cookie = await loginCookie();
     await subRepo.save(env, {
       id: 's1',
@@ -62,7 +62,7 @@ describe('GET /api/backup', () => {
     await remindersRepo.replaceForSubscription(env, 's1', [
       remindersRepo.normalizeRule({ type: 'before_expiry', value: 30, unit: 'days' })
     ]);
-    await putKVJson(env, 'categories', ['视频']);
+    await putKVJson(env, 'categories', ['影片']);
 
     const res = await app.request('/api/backup', { headers: { Cookie: cookie } }, env);
     expect(res.status).toBe(200);
@@ -76,10 +76,10 @@ describe('GET /api/backup', () => {
     expect(backup.subscriptions).toHaveLength(1);
     expect(backup.subscriptions[0].name).toBe('Netflix');
     expect(backup.reminderRules.s1[0].value).toBe(30);
-    expect(backup.categories).toContain('视频');
+    expect(backup.categories).toContain('影片');
   });
 
-  it('includeSecrets=1 时导出 Token', async () => {
+  it('includeSecrets=1 時匯出 Token', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/backup?includeSecrets=1', { headers: { Cookie: cookie } }, env);
     expect(res.status).toBe(200);
@@ -91,7 +91,7 @@ describe('GET /api/backup', () => {
 });
 
 describe('POST /api/restore', () => {
-  it('合并导入订阅与规则', async () => {
+  it('合併匯入訂閱與規則', async () => {
     const cookie = await loginCookie();
     await subRepo.save(env, {
       id: 'keep-me',
@@ -139,12 +139,12 @@ describe('POST /api/restore', () => {
     const cfg = await getConfig(env);
     expect(cfg.TIMEZONE).toBe('Asia/Tokyo');
     expect(cfg.TG_CHAT_ID).toBe('999');
-    // 未请求 includeSecrets 时不应清空已有 token
+    // 未請求 includeSecrets 時不應清空已有 token
     expect(cfg.TG_BOT_TOKEN).toBe('secret-token-value');
     expect(cfg.JWT_SECRET).toBe('test-jwt-secret');
   });
 
-  it('覆盖模式删除旧订阅', async () => {
+  it('覆蓋模式刪除舊訂閱', async () => {
     const cookie = await loginCookie();
     await subRepo.save(env, {
       id: 'old',
@@ -182,7 +182,7 @@ describe('POST /api/restore', () => {
     expect(oldRules).toHaveLength(0);
   });
 
-  it('非法备份 → 400', async () => {
+  it('非法備份 → 400', async () => {
     const cookie = await loginCookie();
     const res = await app.request(
       '/api/restore',

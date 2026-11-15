@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Gotify 通知渠道（自托管）
+ * Gotify 通知渠道（自託管）
  */
 import { ok, fail, errorMessage, stripMarkdown } from './channel.js';
 
@@ -16,7 +16,7 @@ export const gotifyChannel = {
 
   async send(payload, config) {
     const v = gotifyChannel.validateConfig(config);
-    if (!v.ok) return fail('gotify', v.error || '配置无效');
+    if (!v.ok) return fail('gotify', v.error || '配置無效');
 
     const url =
       String(config.GOTIFY_SERVER_URL).replace(/\/+$/, '') +
@@ -45,13 +45,13 @@ export const gotifyChannel = {
 
   async test(config) {
     return gotifyChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条 Gotify 测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條 Gotify 測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版相容函式 */
 export async function sendGotifyNotification(title, content, config) {
   const r = await gotifyChannel.send({ title, content }, config);
   if (!r.success) console.error('[Gotify]', r.error);

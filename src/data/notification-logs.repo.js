@@ -1,21 +1,21 @@
 // @ts-check
 /**
- * 通知日志仓库
+ * 通知日誌倉庫
  *
- * 用途：每次发送通知（成功 / 失败）都记录一条；用于"通知历史"页和
- * "为什么没收到通知"自助排查。
+ * 用途：每次傳送通知（成功 / 失敗）都記錄一條；用於"通知歷史"頁和
+ * "為什麼沒收到通知"自助排查。
  *
- * Key 规则：
+ * Key 規則：
  *   notify_log:{ymdh}:{subId}:{ruleId}:{channel}
- *     ymdh    = "YYYYMMDDHH"（UTC，方便按时间区间 list）
- *     subId   = 订阅 ID
- *     ruleId  = 触发的规则 ID（手动触发可填 'manual'，第三方 API 可填 'thirdparty'）
+ *     ymdh    = "YYYYMMDDHH"（UTC，方便按時間區間 list）
+ *     subId   = 訂閱 ID
+ *     ruleId  = 觸發的規則 ID（手動觸發可填 'manual'，第三方 API 可填 'thirdparty'）
  *     channel = 通知渠道（telegram, bark, ...）
  *
- *   一条 KV 同时还存储进 metadata 里 ymdhmsRand，避免同小时内重复 key 覆盖。
+ *   一條 KV 同時還儲存進 metadata 裡 ymdhmsRand，避免同小時內重複 key 覆蓋。
  *
- * 默认 TTL：30 天，过期自动清理。失败日志可单独配置更长 TTL（这里统一 30 天即可，
- * 后续如需可改 writeLog 接受 ttl 参数）。
+ * 預設 TTL：30 天，過期自動清理。失敗日誌可單獨配置更長 TTL（這裡統一 30 天即可，
+ * 後續如需可改 writeLog 接受 ttl 引數）。
  *
  */
 
@@ -25,19 +25,19 @@ const DEFAULT_TTL_SEC = 30 * 24 * 3600;
 /**
  * @typedef {Object} NotifyLogEntry
  * @property {string} key 完整 KV key
- * @property {string} timestamp ISO 时间
+ * @property {string} timestamp ISO 時間
  * @property {string} subId
- * @property {string|null} ruleId 触发规则；手动 / 第三方为占位字符串
+ * @property {string|null} ruleId 觸發規則；手動 / 第三方為佔位字串
  * @property {string} channel
  * @property {'success'|'failed'} status
  * @property {string} [title]
  * @property {string} [content]
- * @property {string} [error] 失败原因
- * @property {any} [raw] 三方原始返回，便于排查
+ * @property {string} [error] 失敗原因
+ * @property {any} [raw] 三方原始返回，便於排查
  */
 
 /**
- * 把 Date 转成 'YYYYMMDDHH' UTC 字符串。
+ * 把 Date 轉成 'YYYYMMDDHH' UTC 字串。
  *
  * @param {Date | string | number} date
  * @returns {string}
@@ -55,7 +55,7 @@ export function ymdhUtc(date) {
 }
 
 /**
- * 写入一条通知日志。
+ * 寫入一條通知日誌。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {{
@@ -74,7 +74,7 @@ export function ymdhUtc(date) {
  */
 export async function writeLog(env, entry) {
   const ts = entry.timestamp ? new Date(entry.timestamp) : new Date();
-  // 增加随机后缀避免同小时同 sub/rule/channel 多次发送相互覆盖
+  // 增加隨機字尾避免同小時同 sub/rule/channel 多次傳送相互覆蓋
   const rand = Math.floor(ts.getTime() % 100000)
     .toString(36)
     .padStart(4, '0');
@@ -101,7 +101,7 @@ export async function writeLog(env, entry) {
 }
 
 /**
- * 查询通知日志。
+ * 查詢通知日誌。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {{
@@ -117,7 +117,7 @@ export async function writeLog(env, entry) {
 export async function query(env, filter = {}) {
   const limit = Math.min(500, Math.max(1, filter.limit || 100));
 
-  // KV.list 仅支持前缀，无法按多字段过滤，全部拉到内存再过滤
+  // KV.list 僅支援字首，無法按多欄位過濾，全部拉到記憶體再過濾
   const all = [];
   let cursor;
   do {
@@ -130,7 +130,7 @@ export async function query(env, filter = {}) {
     cursor = res.list_complete ? undefined : res.cursor;
   } while (cursor && all.length < 5000);
 
-  // 按 key 字典序倒序 = 时间倒序（因为 ymdh 在前缀后）
+  // 按 key 字典序倒序 = 時間倒序（因為 ymdh 在字首後）
   all.sort((a, b) => b.localeCompare(a));
 
   const sinceTs = filter.since ? new Date(filter.since).getTime() : 0;
@@ -158,7 +158,7 @@ export async function query(env, filter = {}) {
 }
 
 /**
- * 取某订阅最近 N 条日志（仪表盘 / 详情页用）。
+ * 取某訂閱最近 N 條日誌（儀表盤 / 詳情頁用）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId

@@ -1,19 +1,19 @@
 // @ts-check
 /**
- * 提醒規則 / 通知日志 / 調度日志 路由
+ * 提醒規則 / 通知日誌 / 排程日誌 路由
  *
- * 接口表（路徑前綴 /api）：
+ * 介面表（路徑字首 /api）：
  *   GET    /subscriptions/:id/reminders           列出某訂閱的提醒規則
  *   POST   /subscriptions/:id/reminders           新增一條規則
  *   PUT    /subscriptions/:id/reminders/:ruleId   更新一條規則
  *   DELETE /subscriptions/:id/reminders/:ruleId   刪除一條規則
  *
  *   GET    /notification-logs?subId=&channel=&status=&since=&limit=
- *                                                 查詢通知日志
- *   GET    /scheduler-logs?limit=N                查詢調度執行日志
+ *                                                 查詢通知日誌
+ *   GET    /scheduler-logs?limit=N                查詢排程執行日誌
  *
- * 鑒權：與既有客戶端約定一致——需要登錄（cookie token），由 router.js 在 routes 之前
- * 統一校驗。本文件被 router.js 調用，不再單獨校驗。
+ * 鑒權：與既有客戶端約定一致——需要登入（cookie token），由 router.js 在 routes 之前
+ * 統一校驗。本檔案被 router.js 呼叫，不再單獨校驗。
  *
  */
 
@@ -34,7 +34,7 @@ function json(data, status = 200) {
 }
 
 /**
- * 規則變更後同步訂閱上的 legacy 提醒字段，保證列表展示一致。
+ * 規則變更後同步訂閱上的 legacy 提醒欄位，保證列表展示一致。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -46,17 +46,17 @@ async function syncLegacyAfterRulesChange(env, subId, rules) {
     const list = rules || (await remindersRepo.listForSubscription(env, subId));
     await syncLegacyReminderFields(env, subId, list);
   } catch (err) {
-    console.error('[reminders] 同步 legacy 字段失敗:', err);
+    console.error('[reminders] 同步 legacy 欄位失敗:', err);
   }
 }
 
 /**
- * 處理提醒規則 / 通知日志 / 調度日志相關的 新 API。
- * 返回 null 表示路徑不匹配，由調用方繼續轉給下一組路由。
+ * 處理提醒規則 / 通知日誌 / 排程日誌相關的 新 API。
+ * 返回 null 表示路徑不匹配，由呼叫方繼續轉給下一組路由。
  *
  * @param {Request} request
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
- * @param {string} path 已剝離 /api 前綴的路徑
+ * @param {string} path 已剝離 /api 字首的路徑
  */
 export async function handleExtraRoutes(request, env, path) {
   const method = request.method;
@@ -140,7 +140,7 @@ async function handleReminderRoute(request, env, method, subId, ruleId) {
       return json({ success: false, message: '請求體不是合法 JSON' }, 400);
     }
     if (body && body.preset === true) {
-      // 一次性應用智能預設（覆蓋現有規則）
+      // 一次性應用智慧預設（覆蓋現有規則）
       const presets = remindersRepo.defaultPresetRules();
       await remindersRepo.replaceForSubscription(env, subId, presets);
       await syncLegacyAfterRulesChange(env, subId);

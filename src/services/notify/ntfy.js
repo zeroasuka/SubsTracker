@@ -2,13 +2,13 @@
 /**
  * ntfy 通知渠道
  *
- * 文档：https://docs.ntfy.sh/publish/
- * 默认公共服务器 https://ntfy.sh，也可填自建地址。
+ * 文件：https://docs.ntfy.sh/publish/
+ * 預設公共伺服器 https://ntfy.sh，也可填自建地址。
  *
  * 配置：
- * - NTFY_SERVER  默认 https://ntfy.sh
- * - NTFY_TOPIC   主题名（必填）
- * - NTFY_TOKEN   可选 Bearer Token（受保护主题）
+ * - NTFY_SERVER  預設 https://ntfy.sh
+ * - NTFY_TOPIC   主題名（必填）
+ * - NTFY_TOKEN   可選 Bearer Token（受保護主題）
  */
 import { ok, fail, errorMessage, stripMarkdown } from './channel.js';
 
@@ -25,7 +25,7 @@ export const ntfyChannel = {
 
   async send(payload, config) {
     const v = ntfyChannel.validateConfig(config);
-    if (!v.ok) return fail('ntfy', v.error || '配置无效');
+    if (!v.ok) return fail('ntfy', v.error || '配置無效');
 
     const server = String(config.NTFY_SERVER || 'https://ntfy.sh').replace(/\/+$/, '');
     const topic = String(config.NTFY_TOPIC).trim().replace(/^\/+/, '');
@@ -33,7 +33,7 @@ export const ntfyChannel = {
 
     /** @type {Record<string, string>} */
     const headers = {
-      Title: payload.title || '订阅提醒',
+      Title: payload.title || '訂閱提醒',
       'Content-Type': 'text/plain; charset=utf-8'
     };
     const token = config.NTFY_TOKEN ? String(config.NTFY_TOKEN).trim() : '';
@@ -55,7 +55,7 @@ export const ntfyChannel = {
         const text = await r.text().catch(() => '');
         return fail('ntfy', `HTTP ${r.status}`, text);
       }
-      // ntfy 成功通常返回 JSON，但也可能是空；不强制解析
+      // ntfy 成功通常返回 JSON，但也可能是空；不強制解析
       const raw = await r.json().catch(() => ({}));
       return ok('ntfy', raw);
     } catch (err) {
@@ -65,13 +65,13 @@ export const ntfyChannel = {
 
   async test(config) {
     return ntfyChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条 ntfy 测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條 ntfy 測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版相容函式 */
 export async function sendNtfyNotification(title, content, config) {
   const r = await ntfyChannel.send({ title, content }, config);
   if (!r.success) console.error('[ntfy]', r.error);

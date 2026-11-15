@@ -1,21 +1,21 @@
 // @ts-check
 /**
- * 订阅仓库
+ * 訂閱倉庫
  *
- * ── 设计动机 ────────────────────────────────────────────────
- * 早期实现把所有订阅塞在一个 KV key（'subscriptions'）里，每次读写整数组，
- * 并发编辑会丢数据，且数量大时性能下降。
+ * ── 設計動機 ────────────────────────────────────────────────
+ * 早期實現把所有訂閱塞在一個 KV key（'subscriptions'）裡，每次讀寫整陣列，
+ * 併發編輯會丟資料，且數量大時效能下降。
  *
- * 改为：
- *   sub_index = JSON 数组 [id1, id2, ...]    ← 用于快速枚举
- *   sub:{id}  = JSON 对象                     ← 单订阅完整数据
+ * 改為：
+ *   sub_index = JSON 陣列 [id1, id2, ...]    ← 用於快速列舉
+ *   sub:{id}  = JSON 物件                     ← 單訂閱完整資料
  *
- * 单订阅 CRUD 不再触碰整数组，仅写 sub:{id}（修改）或 sub_index+sub:{id}（新增/删除）。
+ * 單訂閱 CRUD 不再觸碰整陣列，僅寫 sub:{id}（修改）或 sub_index+sub:{id}（新增/刪除）。
  *
- * ── 并发安全说明 ────────────────────────────────────────────
- * KV 不支持事务，sub_index 的"读-改-写"在并发下仍可能丢更新。
- * 真实使用场景（单用户、操作稀疏）下风险可接受。
- * 数据本体在 sub:{id}，即使索引漏更新也可以通过 KV.list 修复。
+ * ── 併發安全說明 ────────────────────────────────────────────
+ * KV 不支援事務，sub_index 的"讀-改-寫"在併發下仍可能丟更新。
+ * 真實使用場景（單使用者、操作稀疏）下風險可接受。
+ * 資料本體在 sub:{id}，即使索引漏更新也可以通過 KV.list 修復。
  *
  */
 
@@ -23,7 +23,7 @@ const KEY_INDEX = 'sub_index';
 const KEY_PREFIX = 'sub:';
 
 /**
- * 读取订阅 ID 列表（索引）。
+ * 讀取訂閱 ID 列表（索引）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @returns {Promise<string[]>}
@@ -40,7 +40,7 @@ export async function listIds(env) {
 }
 
 /**
- * 写回订阅 ID 列表（索引）。
+ * 寫回訂閱 ID 列表（索引）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string[]} ids
@@ -59,7 +59,7 @@ async function writeIds(env, ids) {
 }
 
 /**
- * 根据 ID 读取单条订阅。
+ * 根據 ID 讀取單條訂閱。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} id
@@ -72,16 +72,16 @@ export async function getById(env, id) {
   try {
     return JSON.parse(raw);
   } catch (err) {
-    console.error('[sub-repo] 反序列化失败:', id, err);
+    console.error('[sub-repo] 反序列化失敗:', id, err);
     return null;
   }
 }
 
 /**
- * 一次性读取所有订阅（按索引顺序）。
+ * 一次性讀取所有訂閱（按索引順序）。
  *
- * 实现：先读索引，再 Promise.all 并发拿单个订阅；缺失的项被过滤。
- * 对 N 数十量级仍亚秒级。N 上千时建议分批或改用分页接口。
+ * 實現：先讀索引，再 Promise.all 併發拿單個訂閱；缺失的項被過濾。
+ * 對 N 數十量級仍亞秒級。N 上千時建議分批或改用分頁介面。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @returns {Promise<Object[]>}
@@ -90,23 +90,23 @@ export async function listAll(env) {
   const ids = await listIds(env);
   if (ids.length === 0) return [];
   const items = await Promise.all(ids.map((id) => getById(env, id)));
-  // @ts-ignore — 过滤 null
+  // @ts-ignore — 過濾 null
   return items.filter((it) => it != null);
 }
 
 /**
- * 保存（创建或更新）一条订阅。
+ * 儲存（建立或更新）一條訂閱。
  *
- * - 若 ID 不在索引中：写 sub:{id} 并 append 到索引
- * - 若 ID 已存在：仅写 sub:{id}（不动索引，避免不必要的 RPC）
+ * - 若 ID 不在索引中：寫 sub:{id} 並 append 到索引
+ * - 若 ID 已存在：僅寫 sub:{id}（不動索引，避免不必要的 RPC）
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
- * @param {Object} subscription 必须包含 string 类型的 id
- * @returns {Promise<Object>} 写入后的对象
+ * @param {Object} subscription 必須包含 string 型別的 id
+ * @returns {Promise<Object>} 寫入後的物件
  */
 export async function save(env, subscription) {
   if (!subscription || typeof subscription.id !== 'string' || subscription.id === '') {
-    throw new Error('订阅缺少有效 id');
+    throw new Error('訂閱缺少有效 id');
   }
   await env.SUBSCRIPTIONS_KV.put(
     KEY_PREFIX + subscription.id,
@@ -122,9 +122,9 @@ export async function save(env, subscription) {
 }
 
 /**
- * 批量保存订阅（用于自动续订一次更新多条等场景）。
+ * 批次儲存訂閱（用於自動續訂一次更新多條等場景）。
  *
- * 顺序保留；并发写入单条，最后统一写一次索引。
+ * 順序保留；併發寫入單條，最後統一寫一次索引。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {Object[]} subs
@@ -145,17 +145,17 @@ export async function saveMany(env, subs) {
 }
 
 /**
- * 删除一条订阅（同时从索引中移除）。
+ * 刪除一條訂閱（同時從索引中移除）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} id
- * @returns {Promise<boolean>} true 表示确实存在并已删除
+ * @returns {Promise<boolean>} true 表示確實存在並已刪除
  */
 export async function deleteById(env, id) {
   if (!id) return false;
   const before = await env.SUBSCRIPTIONS_KV.get(KEY_PREFIX + id);
   if (!before) {
-    // 索引里可能仍有残留，顺手清掉
+    // 索引裡可能仍有殘留，順手清掉
     const ids = await listIds(env);
     if (ids.includes(id)) {
       await writeIds(env, ids.filter((x) => x !== id));
@@ -171,9 +171,9 @@ export async function deleteById(env, id) {
 }
 
 /**
- * 整个仓库覆盖（用于迁移、导入等场景）。
+ * 整個倉庫覆蓋（用於遷移、匯入等場景）。
  *
- * 流程：先清旧的 sub:{id}（按当前索引），再写新数据。
+ * 流程：先清舊的 sub:{id}（按當前索引），再寫新資料。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {Object[]} subs

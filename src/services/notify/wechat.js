@@ -1,8 +1,8 @@
 // @ts-check
 /**
- * 企业微信机器人通知渠道
+ * 企業微信機器人通知渠道
  *
- * 支持 text / markdown 两种消息格式，可配置 @所有人 / @手机号。
+ * 支援 text / markdown 兩種訊息格式，可配置 @所有人 / @手機號。
  */
 import { ok, fail, errorMessage, stripMarkdown } from './channel.js';
 
@@ -17,7 +17,7 @@ export const wecomChannel = {
 
   async send(payload, config) {
     const v = wecomChannel.validateConfig(config);
-    if (!v.ok) return fail('wechatbot', v.error || '配置无效');
+    if (!v.ok) return fail('wechatbot', v.error || '配置無效');
 
     const msgType = config.WECHATBOT_MSG_TYPE || 'text';
     let messageData;
@@ -55,11 +55,11 @@ export const wecomChannel = {
       try {
         result = JSON.parse(text);
       } catch {
-        return fail('wechatbot', '响应非 JSON', text);
+        return fail('wechatbot', '響應非 JSON', text);
       }
       return result.errcode === 0
         ? ok('wechatbot', result)
-        : fail('wechatbot', `企业微信返回 errcode=${result.errcode} ${result.errmsg || ''}`, result);
+        : fail('wechatbot', `企業微信返回 errcode=${result.errcode} ${result.errmsg || ''}`, result);
     } catch (err) {
       return fail('wechatbot', errorMessage(err));
     }
@@ -67,15 +67,15 @@ export const wecomChannel = {
 
   async test(config) {
     return wecomChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条企业微信测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條企業微信測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版相容函式 */
 export async function sendWechatBotNotification(title, content, config) {
   const r = await wecomChannel.send({ title, content }, config);
-  if (!r.success) console.error('[企业微信]', r.error);
+  if (!r.success) console.error('[企業微信]', r.error);
   return r.success;
 }

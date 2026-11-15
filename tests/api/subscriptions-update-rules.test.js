@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * PUT 订阅时 body.reminderRules 应写入并同步 legacy
+ * PUT 訂閱時 body.reminderRules 應寫入並同步 legacy
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 // @ts-ignore
@@ -39,7 +39,7 @@ async function loginCookie() {
 beforeEach(clearKv);
 
 describe('PUT /api/subscriptions/:id + reminderRules', () => {
-  it('更新时替换规则列表', async () => {
+  it('更新時替換規則列表', async () => {
     const cookie = await loginCookie();
     const create = await app.request(
       '/api/subscriptions',

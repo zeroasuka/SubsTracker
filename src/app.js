@@ -1,16 +1,16 @@
 // @ts-check
 /**
- * Hono 应用装配
+ * Hono 應用裝配
  *
- * 设计目标：
- * - 用 Hono 实现路由分发与中间件管线
- * - 引入中间件：迁移检查 / 日志 / 认证 / 错误处理
- * - 路由路径、方法、响应结构与既有客户端严格兼容
- *   现有前端代码无需改动即可继续工作
+ * 設計目標：
+ * - 用 Hono 實現路由分發與中介軟體管線
+ * - 引入中介軟體：遷移檢查 / 日誌 / 認證 / 錯誤處理
+ * - 路由路徑、方法、響應結構與既有客戶端嚴格相容
+ *   現有前端程式碼無需改動即可繼續工作
  *
  * 落地策略：
- * - 现阶段（Task 7）：Hono 充当"外壳路由器"，把请求转发给现有 handler
- *   后续 Task 可逐个把 handler 改成 Hono 原生写法，但当前优先保证不破坏。
+ * - 現階段（Task 7）：Hono 充當"外殼路由器"，把請求轉發給現有 handler
+ *   後續 Task 可逐個把 handler 改成 Hono 原生寫法，但當前優先保證不破壞。
  *
  */
 
@@ -30,27 +30,27 @@ import { ensureMigrations } from './data/migrate.js';
 const app = new Hono();
 
 // ─────────────────────────────────────────────────────────────
-// 全局中间件：迁移检查（首次访问透明触发）
+// 全域性中介軟體：遷移檢查（首次訪問透明觸發）
 // ─────────────────────────────────────────────────────────────
 app.use('*', async (c, next) => {
   try {
     await ensureMigrations(c.env);
   } catch (err) {
-    console.error('[app] 迁移失败，回退继续处理请求:', err);
+    console.error('[app] 遷移失敗，回退繼續處理請求:', err);
   }
   await next();
 });
 
 // ─────────────────────────────────────────────────────────────
-// 全局错误兜底
+// 全域性錯誤兜底
 // ─────────────────────────────────────────────────────────────
 app.onError((err, c) => {
-  console.error('[app] 未捕获异常:', err && err.stack ? err.stack : err);
-  // 统一的错误格式
+  console.error('[app] 未捕獲異常:', err && err.stack ? err.stack : err);
+  // 統一的錯誤格式
   return c.json(
     {
       success: false,
-      message: err && err.message ? err.message : '服务异常',
+      message: err && err.message ? err.message : '服務異常',
       code: 'internal_error'
     },
     500
@@ -58,8 +58,8 @@ app.onError((err, c) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 路由：根路径
-// 已登录跳 /admin；未登录返回登录页
+// 路由：根路徑
+// 已登入跳 /admin；未登入返回登入頁
 // ─────────────────────────────────────────────────────────────
 app.get('/', async (c) => {
   const { user } = await getUserFromRequest(c.req.raw, c.env);
@@ -68,12 +68,12 @@ app.get('/', async (c) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 路由：/debug（必须登录）
+// 路由：/debug（必須登入）
 // ─────────────────────────────────────────────────────────────
 app.all('/debug', async (c) => {
   const { user } = await getUserFromRequest(c.req.raw, c.env);
   if (!user) {
-    return new Response('未授权访问', {
+    return new Response('未授權訪問', {
       status: 401,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
@@ -82,7 +82,7 @@ app.all('/debug', async (c) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 路由：/api/*（认证由 handler 内部处理，与既有客户端约定一致）
+// 路由：/api/*（認證由 handler 內部處理，與既有客戶端約定一致）
 // ─────────────────────────────────────────────────────────────
 app.all('/api/*', async (c) => {
   return handleApiRequest(c.req.raw, c.env);
@@ -100,7 +100,7 @@ app.get('/admin', async (c) => {
 });
 
 // ─────────────────────────────────────────────────────────────
-// 兜底：其他路径返回登录页（（兜底行为））
+// 兜底：其他路徑返回登入頁（（兜底行為））
 // ─────────────────────────────────────────────────────────────
 app.all('*', async () => {
   return handleLoginPage();

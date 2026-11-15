@@ -2,7 +2,7 @@
 /**
  * Bark 通知渠道（iOS）
  *
- * 支持兩種 URL 模式：
+ * 支援兩種 URL 模式：
  *   1. 標準：BARK_SERVER + BARK_DEVICE_KEY → POST {server}/push
  *   2. 自定義：BARK_SERVER 路徑不為 / → POST {server}（已含 key 的完整 URL）
  */
@@ -79,7 +79,7 @@ export const barkChannel = {
   }
 };
 
-/** @deprecated 舊版兼容函數 */
+/** @deprecated 舊版相容函式 */
 export async function sendBarkNotification(title, content, config) {
   const r = await barkChannel.send({ title, content }, config);
   if (!r.success) console.error('[Bark]', r.error);

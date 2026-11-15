@@ -2,8 +2,8 @@
 /**
  * Worker 入口
  *
- * fetch handler 委托给 Hono 应用（src/app.js）。
- * scheduled handler 触发定时任务执行。
+ * fetch handler 委託給 Hono 應用（src/app.js）。
+ * scheduled handler 觸發定時任務執行。
  *
  */
 
@@ -15,7 +15,7 @@ export default {
   fetch: app.fetch,
 
   /**
-   * 每小时由 Cron 触发一次。
+   * 每小時由 Cron 觸發一次。
    *
    * @param {ScheduledEvent} event
    * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
@@ -26,10 +26,10 @@ export default {
     try {
       await ensureMigrations(env);
     } catch (err) {
-      console.error('[index] scheduled 迁移失败:', err);
+      console.error('[index] scheduled 遷移失敗:', err);
     }
     console.log(
-      '[Workers] 定时任务触发',
+      '[Workers] 定時任務觸發',
       'cron:',
       event?.cron || '(unknown)',
       'UTC:',

@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 提醒规则仓库单元测试
+ * 提醒規則倉庫單元測試
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 // @ts-ignore
@@ -16,7 +16,7 @@ async function clearKv() {
 beforeEach(clearKv);
 
 describe('reminders.repo', () => {
-  it('listForSubscription 空返回空数组', async () => {
+  it('listForSubscription 空返回空陣列', async () => {
     expect(await repo.listForSubscription(env, 's1')).toEqual([]);
   });
 
@@ -29,7 +29,7 @@ describe('reminders.repo', () => {
     expect(list[0].id).toBe(r.id);
   });
 
-  it('updateRule 合并 patch', async () => {
+  it('updateRule 合併 patch', async () => {
     const r = await repo.addRule(env, 's1', { type: 'before_expiry', value: 7, unit: 'days' });
     const upd = await repo.updateRule(env, 's1', r.id, { value: 3, isEnabled: false });
     expect(upd?.value).toBe(3);
@@ -48,13 +48,13 @@ describe('reminders.repo', () => {
     expect(await repo.listForSubscription(env, 's1')).toEqual([]);
   });
 
-  it('clearForSubscription 清空整个 key', async () => {
+  it('clearForSubscription 清空整個 key', async () => {
     await repo.addRule(env, 's1', { type: 'before_expiry', value: 7, unit: 'days' });
     await repo.clearForSubscription(env, 's1');
     expect(await repo.listForSubscription(env, 's1')).toEqual([]);
   });
 
-  it('defaultPresetRules 返回 4 条预设（7/3/1/当天）', () => {
+  it('defaultPresetRules 返回 4 條預設（7/3/1/當天）', () => {
     const rules = repo.defaultPresetRules();
     expect(rules).toHaveLength(4);
     expect(rules.map((r) => `${r.type}:${r.value}${r.unit[0]}`)).toEqual([
@@ -66,12 +66,12 @@ describe('reminders.repo', () => {
     rules.forEach((r) => expect(r.isEnabled).toBe(true));
   });
 
-  it('legacyFieldToRule：day 单位 7 → before_expiry/7/days', () => {
+  it('legacyFieldToRule：day 單位 7 → before_expiry/7/days', () => {
     const r = repo.legacyFieldToRule({ reminderUnit: 'day', reminderValue: 7 });
     expect(r).toMatchObject({ type: 'before_expiry', value: 7, unit: 'days' });
   });
 
-  it('legacyFieldToRule：hour 单位', () => {
+  it('legacyFieldToRule：hour 單位', () => {
     const r = repo.legacyFieldToRule({ reminderUnit: 'hour', reminderValue: 12 });
     expect(r).toMatchObject({ type: 'before_expiry', value: 12, unit: 'hours' });
   });
@@ -86,19 +86,19 @@ describe('reminders.repo', () => {
     expect(r).toMatchObject({ type: 'before_expiry', value: 7, unit: 'days' });
   });
 
-  it('normalizeRule：非法 type 兜底为 before_expiry', () => {
+  it('normalizeRule：非法 type 兜底為 before_expiry', () => {
     const r = repo.normalizeRule({ type: 'lol', value: 5, unit: 'days' });
     expect(r.type).toBe('before_expiry');
   });
 
-  it('normalizeRule：repeatInterval 仅 after_expiry 保留', () => {
+  it('normalizeRule：repeatInterval 僅 after_expiry 保留', () => {
     const a = repo.normalizeRule({ type: 'before_expiry', value: 1, unit: 'days', repeatInterval: 24 });
     expect(a.repeatInterval).toBeNull();
     const b = repo.normalizeRule({ type: 'after_expiry', value: 0, unit: 'days', repeatInterval: 24 });
     expect(b.repeatInterval).toBe(24);
   });
 
-  it('formatRulesSummary：多规则摘要', () => {
+  it('formatRulesSummary：多規則摘要', () => {
     const summary = repo.formatRulesSummary([
       { id: '1', type: 'before_expiry', value: 30, unit: 'days', isEnabled: true, createdAt: '' },
       { id: '2', type: 'before_expiry', value: 7, unit: 'days', isEnabled: true, createdAt: '' },
@@ -106,7 +106,7 @@ describe('reminders.repo', () => {
     ]);
     expect(summary).toContain('30');
     expect(summary).toContain('7');
-    expect(summary).toContain('到期当天');
+    expect(summary).toContain('到期當天');
   });
 
   it('deriveLegacyFromRules：取最大 before_expiry', () => {
@@ -118,7 +118,7 @@ describe('reminders.repo', () => {
     expect(legacy).toEqual({ unit: 'day', value: 30 });
   });
 
-  it('deriveLegacyFromRules：仅 on_expiry 时 value=0', () => {
+  it('deriveLegacyFromRules：僅 on_expiry 時 value=0', () => {
     const legacy = repo.deriveLegacyFromRules([
       { id: '1', type: 'on_expiry', value: 0, unit: 'days', isEnabled: true, createdAt: '' }
     ]);

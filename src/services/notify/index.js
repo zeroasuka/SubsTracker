@@ -1,9 +1,9 @@
 // @ts-check
 /**
- * 通知調度入口
+ * 通知排程入口
  *
  * 舊 sendNotificationToAllChannels 現在是 dispatch.dispatch 的薄殼，
- * 保留簽名向後兼容。新代碼請直接使用 dispatch / testChannel。
+ * 保留簽名向後相容。新程式碼請直接使用 dispatch / testChannel。
  *
  */
 import { dispatch } from './dispatch.js';
@@ -34,7 +34,7 @@ export async function sendNotificationToAllChannels(
     }
   );
 
-  // 舊調用方期望的字段名
+  // 舊呼叫方期望的欄位名
   return {
     attempted: result.attempted,
     successCount: result.successCount,

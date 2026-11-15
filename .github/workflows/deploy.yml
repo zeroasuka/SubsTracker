@@ -3,15 +3,15 @@ name: Deploy
 on:
   push:
     branches: [main, master]
-  workflow_dispatch: # 允许手动触发
+  workflow_dispatch: # 允許手動觸發
 
 jobs:
   deploy:
     name: Deploy to Cloudflare Workers
     runs-on: ubuntu-latest
-    # 需要在 GitHub 仓库 Settings → Secrets 配置：
-    #   CLOUDFLARE_API_TOKEN  (Workers 编辑 + KV 编辑权限)
-    #   CLOUDFLARE_ACCOUNT_ID (可选；Token 可锁定到单 account)
+    # 需要在 GitHub 倉庫 Settings → Secrets 配置：
+    #   CLOUDFLARE_API_TOKEN  (Workers 編輯 + KV 編輯許可權)
+    #   CLOUDFLARE_ACCOUNT_ID (可選；Token 可鎖定到單 account)
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint + Test (deploy 前最后一道防线)
+      - name: Lint + Test (deploy 前最後一道防線)
         run: |
           npm run lint
           npm test

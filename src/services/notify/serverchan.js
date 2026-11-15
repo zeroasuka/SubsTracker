@@ -46,7 +46,7 @@ export const serverChanChannel = {
   }
 };
 
-/** @deprecated 舊版兼容函數 */
+/** @deprecated 舊版相容函式 */
 export async function sendServerChanNotification(title, content, config) {
   const r = await serverChanChannel.send({ title, content }, config);
   if (!r.success) console.error('[Server醬]', r.error);

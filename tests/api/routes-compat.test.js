@@ -1,11 +1,11 @@
 // @ts-check
 /**
- * API 路由兼容性 smoke 测试
+ * API 路由相容性 smoke 測試
  *
- * 验证 Hono 应用与既有客户端的路由响应严格兼容：
- * - 未授权时返回 401 + 同样的错误结构
- * - 公开端点（登录页、登录接口）行为一致
- * - 4xx/5xx 错误格式与既有约定一致
+ * 驗證 Hono 應用與既有客戶端的路由響應嚴格相容：
+ * - 未授權時返回 401 + 同樣的錯誤結構
+ * - 公開端點（登入頁、登入介面）行為一致
+ * - 4xx/5xx 錯誤格式與既有約定一致
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 // @ts-ignore
@@ -19,20 +19,20 @@ async function clearKv() {
 
 beforeEach(clearKv);
 
-describe('Hono app 路由兼容', () => {
-  it('GET / 未登录返回登录页 HTML', async () => {
+describe('Hono app 路由相容', () => {
+  it('GET / 未登入返回登入頁 HTML', async () => {
     const res = await app.request('/', {}, env);
     expect(res.status).toBe(200);
     const html = await res.text();
     expect(html).toContain('<!DOCTYPE html');
   });
 
-  it('GET /admin 未登录跳回 / (302)', async () => {
+  it('GET /admin 未登入跳回 / (302)', async () => {
     const res = await app.request('/admin', {}, env);
     expect([302, 200].includes(res.status)).toBe(true);
   });
 
-  it('GET /api/subscriptions 未登录返回 401 + 标准错误体', async () => {
+  it('GET /api/subscriptions 未登入返回 401 + 標準錯誤體', async () => {
     const res = await app.request('/api/subscriptions', {}, env);
     expect(res.status).toBe(401);
     const json = await res.json();
@@ -51,8 +51,8 @@ describe('Hono app 路由兼容', () => {
     expect(json.success).toBe(false);
   });
 
-  it('POST /api/login 正确凭据 → success + Set-Cookie', async () => {
-    // 配置默认管理员
+  it('POST /api/login 正確憑據 → success + Set-Cookie', async () => {
+    // 配置預設管理員
     await env.SUBSCRIPTIONS_KV.put(
       'config',
       JSON.stringify({ ADMIN_USERNAME: 'admin', ADMIN_PASSWORD: 'password', JWT_SECRET: 'k' })
@@ -68,13 +68,13 @@ describe('Hono app 路由兼容', () => {
     expect(res.headers.get('Set-Cookie') || '').toContain('token=');
   });
 
-  it('GET /debug 未登录返回 401', async () => {
+  it('GET /debug 未登入返回 401', async () => {
     const res = await app.request('/debug', {}, env);
     expect(res.status).toBe(401);
   });
 
-  it('GET /api/未知端点 → 404 + 标准错误体', async () => {
-    // 先登录拿 cookie
+  it('GET /api/未知端點 → 404 + 標準錯誤體', async () => {
+    // 先登入拿 cookie
     await env.SUBSCRIPTIONS_KV.put(
       'config',
       JSON.stringify({ ADMIN_USERNAME: 'admin', ADMIN_PASSWORD: 'password', JWT_SECRET: 'k' })
@@ -94,7 +94,7 @@ describe('Hono app 路由兼容', () => {
     expect(json.success).toBe(false);
   });
 
-  it('未匹配路径走兜底 → 返回登录页', async () => {
+  it('未匹配路徑走兜底 → 返回登入頁', async () => {
     const res = await app.request('/random/path/xyz', {}, env);
     expect(res.status).toBe(200);
     const html = await res.text();

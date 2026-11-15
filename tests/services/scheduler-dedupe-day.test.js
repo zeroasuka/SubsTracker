@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 调度器：日规则按本地日去重；发送失败不占 dedupe；after_expiry 写 lastFire
+ * 排程器：日規則按本地日去重；傳送失敗不佔 dedupe；after_expiry 寫 lastFire
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -21,10 +21,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('日级去重与成功后占位', () => {
-  it('日规则：同一天不同小时第二次应被 dedupe', async () => {
+describe('日級去重與成功後佔位', () => {
+  it('日規則：同一天不同小時第二次應被 dedupe', async () => {
     vi.useFakeTimers();
-    // 到期 2026-06-08，当前 6/1 → daysDiff=7
+    // 到期 2026-06-08，當前 6/1 → daysDiff=7
     vi.setSystemTime(new Date('2026-06-01T08:00:00Z'));
     await env.SUBSCRIPTIONS_KV.put(
       'config',
@@ -67,14 +67,14 @@ describe('日级去重与成功后占位', () => {
     expect(first.matchedCount).toBeGreaterThanOrEqual(1);
     expect(first.sentCount).toBeGreaterThanOrEqual(1);
 
-    // 同一天晚些时候
+    // 同一天晚些時候
     vi.setSystemTime(new Date('2026-06-01T20:00:00Z'));
     const second = await checkExpiringSubscriptions(env);
     expect(second.dedupedCount).toBeGreaterThanOrEqual(1);
     expect(second.sentCount).toBe(0);
   });
 
-  it('发送全失败时不写 dedupe，同小时可重试', async () => {
+  it('傳送全失敗時不寫 dedupe，同小時可重試', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-01T08:00:00Z'));
     await env.SUBSCRIPTIONS_KV.put(
@@ -130,7 +130,7 @@ describe('日级去重与成功后占位', () => {
     expect(second.sentCount).toBeGreaterThanOrEqual(1);
   });
 
-  it('after_expiry：成功后写 lastFire，间隔内不再匹配发送', async () => {
+  it('after_expiry：成功後寫 lastFire，間隔內不再匹配發送', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-10T08:00:00Z'));
     await env.SUBSCRIPTIONS_KV.put(
@@ -174,10 +174,10 @@ describe('日级去重与成功后占位', () => {
     expect(first.matchedCount).toBeGreaterThanOrEqual(1);
     expect(first.sentCount).toBeGreaterThanOrEqual(1);
 
-    // +2 小时仍在 24h 间隔内，且不同小时桶
+    // +2 小時仍在 24h 間隔內，且不同小時桶
     vi.setSystemTime(new Date('2026-06-10T10:00:00Z'));
     const second = await checkExpiringSubscriptions(env);
-    // shouldFire 因 lastFire 拒绝 → matched 可为 0
+    // shouldFire 因 lastFire 拒絕 → matched 可為 0
     expect(second.sentCount).toBe(0);
   });
 });

@@ -1,12 +1,12 @@
 // @ts-check
 /**
- * 提醒规则 / 通知日志 / 调度日志 路由测试
+ * 提醒規則 / 通知日誌 / 排程日誌 路由測試
  *
  * - /api/subscriptions/:id/reminders 完整 CRUD
- * - /api/notification-logs 查询 + 过滤
- * - /api/scheduler-logs 查询
- * - 创建订阅时 reminderRules 字段联动
- * - 鉴权失败路径
+ * - /api/notification-logs 查詢 + 過濾
+ * - /api/scheduler-logs 查詢
+ * - 建立訂閱時 reminderRules 欄位聯動
+ * - 鑑權失敗路徑
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 // @ts-ignore
@@ -23,7 +23,7 @@ async function clearKv() {
   await Promise.all(list.keys.map((k) => env.SUBSCRIPTIONS_KV.delete(k.name)));
 }
 
-/** 写入默认管理员 + 拿到登录 cookie */
+/** 寫入預設管理員 + 拿到登入 cookie */
 async function loginCookie() {
   await env.SUBSCRIPTIONS_KV.put(
     'config',
@@ -40,12 +40,12 @@ async function loginCookie() {
 beforeEach(clearKv);
 
 describe('GET /api/subscriptions/:id/reminders', () => {
-  it('未授权 → 401', async () => {
+  it('未授權 → 401', async () => {
     const res = await app.request('/api/subscriptions/x/reminders', {}, env);
     expect(res.status).toBe(401);
   });
 
-  it('返回当前规则数组', async () => {
+  it('返回當前規則陣列', async () => {
     const cookie = await loginCookie();
     await remindersRepo.replaceForSubscription(env, 'sub-1', [
       remindersRepo.normalizeRule({ type: 'before_expiry', value: 7, unit: 'days' })
@@ -62,7 +62,7 @@ describe('GET /api/subscriptions/:id/reminders', () => {
 });
 
 describe('POST /api/subscriptions/:id/reminders', () => {
-  it('添加单条规则', async () => {
+  it('新增單條規則', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/subscriptions/sub-2/reminders', {
       method: 'POST',
@@ -78,7 +78,7 @@ describe('POST /api/subscriptions/:id/reminders', () => {
     expect(list).toHaveLength(1);
   });
 
-  it('preset=true 一键应用 4 条预设', async () => {
+  it('preset=true 一鍵應用 4 條預設', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/subscriptions/sub-preset/reminders', {
       method: 'POST',
@@ -92,7 +92,7 @@ describe('POST /api/subscriptions/:id/reminders', () => {
 });
 
 describe('PUT/DELETE /api/subscriptions/:id/reminders/:ruleId', () => {
-  it('PUT 更新规则', async () => {
+  it('PUT 更新規則', async () => {
     const cookie = await loginCookie();
     const created = await remindersRepo.addRule(env, 'sub-3', {
       type: 'before_expiry',
@@ -121,7 +121,7 @@ describe('PUT/DELETE /api/subscriptions/:id/reminders/:ruleId', () => {
     expect(res.status).toBe(404);
   });
 
-  it('DELETE 移除规则', async () => {
+  it('DELETE 移除規則', async () => {
     const cookie = await loginCookie();
     const created = await remindersRepo.addRule(env, 'sub-4', {
       type: 'before_expiry',
@@ -138,12 +138,12 @@ describe('PUT/DELETE /api/subscriptions/:id/reminders/:ruleId', () => {
 });
 
 describe('GET /api/notification-logs', () => {
-  it('未授权 → 401', async () => {
+  it('未授權 → 401', async () => {
     const res = await app.request('/api/notification-logs', {}, env);
     expect(res.status).toBe(401);
   });
 
-  it('过滤 subId / status', async () => {
+  it('過濾 subId / status', async () => {
     const cookie = await loginCookie();
     await writeNotifyLog(env, { subId: 's1', channel: 'tg', status: 'success' });
     await writeNotifyLog(env, { subId: 's2', channel: 'tg', status: 'failed', error: 'X' });
@@ -165,7 +165,7 @@ describe('GET /api/notification-logs', () => {
 });
 
 describe('GET /api/scheduler-logs', () => {
-  it('返回最近 N 条调度日志', async () => {
+  it('返回最近 N 條排程日誌', async () => {
     const cookie = await loginCookie();
     await writeSchedLog(env, {
       startedAt: '2026-05-24T10:00:00Z',
@@ -192,8 +192,8 @@ describe('GET /api/scheduler-logs', () => {
   });
 });
 
-describe('POST /api/subscriptions 自动应用提醒规则', () => {
-  it('未传 reminderRules → 应用 4 条智能预设', async () => {
+describe('POST /api/subscriptions 自動應用提醒規則', () => {
+  it('未傳 reminderRules → 應用 4 條智慧預設', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/subscriptions', {
       method: 'POST',
@@ -216,7 +216,7 @@ describe('POST /api/subscriptions 自动应用提醒规则', () => {
     expect(rules).toHaveLength(4);
   });
 
-  it('传入自定义 reminderRules → 用它替代预设', async () => {
+  it('傳入自定義 reminderRules → 用它替代預設', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/subscriptions', {
       method: 'POST',
@@ -243,7 +243,7 @@ describe('POST /api/subscriptions 自动应用提醒规则', () => {
 });
 
 describe('GET /api/version', () => {
-  it('返回版本号', async () => {
+  it('返回版本號', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/version', { headers: { Cookie: cookie } }, env);
     expect(res.status).toBe(200);
@@ -253,7 +253,7 @@ describe('GET /api/version', () => {
 });
 
 describe('GET/POST /api/categories', () => {
-  it('初始为空数组', async () => {
+  it('初始為空陣列', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/categories', { headers: { Cookie: cookie } }, env);
     expect(res.status).toBe(200);
@@ -261,33 +261,33 @@ describe('GET/POST /api/categories', () => {
     expect(body.categories).toEqual([]);
   });
 
-  it('POST 新增分类后 GET 返回', async () => {
+  it('POST 新增分類後 GET 返回', async () => {
     const cookie = await loginCookie();
     await app.request('/api/categories', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: cookie },
-      body: JSON.stringify({ name: '娱乐' })
+      body: JSON.stringify({ name: '娛樂' })
     }, env);
     const res = await app.request('/api/categories', { headers: { Cookie: cookie } }, env);
     const body = await res.json();
-    expect(body.categories).toContain('娱乐');
+    expect(body.categories).toContain('娛樂');
   });
 
-  it('创建订阅时自动保存分类', async () => {
+  it('建立訂閱時自動儲存分類', async () => {
     const cookie = await loginCookie();
     await app.request('/api/subscriptions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Cookie: cookie },
-      body: JSON.stringify({ name: 'Netflix', expiryDate: '2026-12-31T00:00:00Z', category: '流媒体' })
+      body: JSON.stringify({ name: 'Netflix', expiryDate: '2026-12-31T00:00:00Z', category: '流媒體' })
     }, env);
     const res = await app.request('/api/categories', { headers: { Cookie: cookie } }, env);
     const body = await res.json();
-    expect(body.categories).toContain('流媒体');
+    expect(body.categories).toContain('流媒體');
   });
 });
 
 describe('GET /api/subscriptions/:id/next-reminder', () => {
-  it('返回最近的下次触发时间', async () => {
+  it('返回最近的下次觸發時間', async () => {
     const cookie = await loginCookie();
     // Create a subscription with future expiry
     const createRes = await app.request('/api/subscriptions', {

@@ -15,7 +15,7 @@ function buildHtml(title, content, timezone) {
   const safe = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] || c));
   const ts = formatLocalDate(new Date(), timezone || 'UTC', 'datetime');
   return `<!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${safe(title)}</title>
+<html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${safe(title)}</title>
 <style>
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
 .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
@@ -30,9 +30,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
   <div class="header"><h1>📅 ${safe(title)}</h1></div>
   <div class="content">
     <div class="highlight">${safe(stripMarkdown(content)).replace(/\n/g, '<br>')}</div>
-    <p style="color:#666;line-height:1.6;">此郵件由訂閱管理系統自動發送，請及時處理相關訂閱事務。</p>
+    <p style="color:#666;line-height:1.6;">此郵件由訂閱管理系統自動傳送，請及時處理相關訂閱事務。</p>
   </div>
-  <div class="footer"><p>訂閱管理系統 | 發送時間: ${safe(ts)}</p></div>
+  <div class="footer"><p>訂閱管理系統 | 傳送時間: ${safe(ts)}</p></div>
 </div>
 </body></html>`;
 }
@@ -88,7 +88,7 @@ export const emailChannel = {
   }
 };
 
-/** @deprecated 舊版兼容函數 */
+/** @deprecated 舊版相容函式 */
 export async function sendEmailNotification(title, content, config) {
   const r = await emailChannel.send({ title, content }, config);
   if (!r.success) console.error('[Email]', r.error);

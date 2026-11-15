@@ -1,20 +1,20 @@
 // @ts-check
 /**
- * 提醒规则仓库
+ * 提醒規則倉庫
  *
- * 数据结构：reminder_rules:{subId} = JSON 数组，每条规则形如：
+ * 資料結構：reminder_rules:{subId} = JSON 陣列，每條規則形如：
  * {
  *   id: string,                                 // UUID
  *   type: 'before_expiry' | 'on_expiry' | 'after_expiry',
- *   value: number,                              // 数值（如 7）
+ *   value: number,                              // 數值（如 7）
  *   unit: 'days' | 'hours',
- *   repeatInterval: number | null,              // 单位：小时；仅 after_expiry 用
+ *   repeatInterval: number | null,              // 單位：小時；僅 after_expiry 用
  *   repeatUntil: 'renewed' | 'acknowledged' | 'never',
  *   isEnabled: boolean,
  *   createdAt: string                           // ISO
  * }
  *
- * 智能预设（新订阅默认 4 条）：到期前 7/3/1 天 + 到期当天。
+ * 智慧預設（新訂閱預設 4 條）：到期前 7/3/1 天 + 到期當天。
  *
  */
 
@@ -33,7 +33,7 @@ const KEY_PREFIX = 'reminder_rules:';
  */
 
 /**
- * 生成新 rule 的默认 id（UUID）。
+ * 生成新 rule 的預設 id（UUID）。
  *
  * @returns {string}
  */
@@ -42,7 +42,7 @@ export function makeRuleId() {
 }
 
 /**
- * 智能预设：4 条 — 到期前 7/3/1 天 + 当天。
+ * 智慧預設：4 條 — 到期前 7/3/1 天 + 當天。
  *
  * @returns {ReminderRule[]}
  */
@@ -57,7 +57,7 @@ export function defaultPresetRules() {
 }
 
 /**
- * 把旧的 reminderUnit/reminderValue 单点提醒转换为 1 条等价规则。
+ * 把舊的 reminderUnit/reminderValue 單點提醒轉換為 1 條等價規則。
  *
  * @param {{ reminderUnit?: string, reminderValue?: number, reminderDays?: number, reminderHours?: number }} sub
  * @returns {ReminderRule}
@@ -69,7 +69,7 @@ export function legacyFieldToRule(sub) {
   const value = Number(
     sub.reminderValue !== undefined && sub.reminderValue !== null ? sub.reminderValue : fallback
   );
-  // value 为非数字时回退 7；value=0 视为"到期当天"，保留
+  // value 為非數字時回退 7；value=0 視為"到期當天"，保留
   const safeValue = Number.isFinite(value) && value >= 0 ? value : 7;
   return {
     id: makeRuleId(),
@@ -84,7 +84,7 @@ export function legacyFieldToRule(sub) {
 }
 
 /**
- * 校验并归一化一条规则（修正非法字段，回退默认值）。
+ * 校驗並歸一化一條規則（修正非法欄位，回退預設值）。
  *
  * @param {any} raw
  * @returns {ReminderRule}
@@ -116,7 +116,7 @@ export function normalizeRule(raw) {
 }
 
 /**
- * 读取一个订阅的所有提醒规则。
+ * 讀取一個訂閱的所有提醒規則。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -135,7 +135,7 @@ export async function listForSubscription(env, subId) {
 }
 
 /**
- * 整体替换某订阅的提醒规则（CRUD 都基于此）。
+ * 整體替換某訂閱的提醒規則（CRUD 都基於此）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -147,7 +147,7 @@ export async function replaceForSubscription(env, subId, rules) {
 }
 
 /**
- * 添加单条规则。
+ * 新增單條規則。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -163,7 +163,7 @@ export async function addRule(env, subId, rule) {
 }
 
 /**
- * 更新单条规则。
+ * 更新單條規則。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -181,7 +181,7 @@ export async function updateRule(env, subId, ruleId, patch) {
 }
 
 /**
- * 删除单条规则。
+ * 刪除單條規則。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -197,7 +197,7 @@ export async function deleteRule(env, subId, ruleId) {
 }
 
 /**
- * 删除某订阅的所有规则（订阅被删除时联动清理）。
+ * 刪除某訂閱的所有規則（訂閱被刪除時聯動清理）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {string} subId
@@ -207,8 +207,8 @@ export async function clearForSubscription(env, subId) {
 }
 
 /**
- * 从多规则推导列表展示用的 legacy 单点字段（兼容旧 UI / 通知正文）。
- * 优先取已启用的 before_expiry 中 value 最大的一条；否则 on_expiry；否则首条启用规则。
+ * 從多規則推導列表展示用的 legacy 單點欄位（相容舊 UI / 通知正文）。
+ * 優先取已啟用的 before_expiry 中 value 最大的一條；否則 on_expiry；否則首條啟用規則。
  *
  * @param {ReminderRule[]} rules
  * @returns {{ unit: 'day'|'hour', value: number }}
@@ -234,14 +234,14 @@ export function deriveLegacyFromRules(rules) {
 }
 
 /**
- * 生成列表「提醒」列摘要文案（多规则）。
+ * 生成列表「提醒」列摘要文案（多規則）。
  *
  * @param {ReminderRule[]} rules
  * @returns {string}
  */
 export function formatRulesSummary(rules) {
   const list = Array.isArray(rules) ? rules.filter((r) => r && r.isEnabled !== false) : [];
-  if (list.length === 0) return '未设置提醒';
+  if (list.length === 0) return '未設定提醒';
 
   /** @type {string[]} */
   const parts = [];
@@ -260,16 +260,16 @@ export function formatRulesSummary(rules) {
     parts.push(`提前 ${beforeDays.join('/')} 天`);
   }
   if (beforeHours.length > 0) {
-    parts.push(`提前 ${beforeHours.join('/')} 小时`);
+    parts.push(`提前 ${beforeHours.join('/')} 小時`);
   }
   if (list.some((r) => r.type === 'on_expiry' || (r.type === 'before_expiry' && r.value === 0))) {
-    parts.push('到期当天');
+    parts.push('到期當天');
   }
   const after = list.find((r) => r.type === 'after_expiry');
   if (after) {
     const interval = after.repeatInterval && after.repeatInterval > 0 ? after.repeatInterval : 24;
-    parts.push(`到期后每 ${interval} 小时`);
+    parts.push(`到期後每 ${interval} 小時`);
   }
 
-  return parts.length > 0 ? parts.join(' · ') : '未设置提醒';
+  return parts.length > 0 ? parts.join(' · ') : '未設定提醒';
 }

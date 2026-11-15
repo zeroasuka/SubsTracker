@@ -1,12 +1,12 @@
 // @ts-check
 /**
- * 调度器集成测试
+ * 排程器整合測試
  *
- * 4 个核心场景（修复 #91 / #52 / #166）：
- * 1. UTC 0点 + TZ Asia/Shanghai + NOTIFICATION_HOURS=["08"] + 北京 8 点 → 应发送
- * 2. 同上但 NOTIFICATION_HOURS=["00"] → 不发送
- * 3. 多规则订阅（7/3/1/当天）：到期前 3 天 → 仅命中 value:3
- * 4. 同规则同小时第二次调用 → 去重跳过
+ * 4 個核心場景（修復 #91 / #52 / #166）：
+ * 1. UTC 0點 + TZ Asia/Shanghai + NOTIFICATION_HOURS=["08"] + 北京 8 點 → 應傳送
+ * 2. 同上但 NOTIFICATION_HOURS=["00"] → 不傳送
+ * 3. 多規則訂閱（7/3/1/當天）：到期前 3 天 → 僅命中 value:3
+ * 4. 同規則同小時第二次呼叫 → 去重跳過
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -23,7 +23,7 @@ async function clearKv() {
   await Promise.all(list.keys.map((k) => env.SUBSCRIPTIONS_KV.delete(k.name)));
 }
 
-/** 写入一条系统配置 */
+/** 寫入一條系統配置 */
 async function setConfig(cfg) {
   await env.SUBSCRIPTIONS_KV.put('config', JSON.stringify(cfg));
 }
@@ -48,9 +48,9 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('调度器 - 时区 + 通知时段', () => {
-  it('场景1：UTC 0点 + TZ Asia/Shanghai + NOTIFICATION_HOURS=[08] + 北京 8 点 → 发送', async () => {
-    // mock 当前时间为 UTC 2026-05-24 00:00 = 北京 5/24 08:00
+describe('排程器 - 時區 + 通知時段', () => {
+  it('場景1：UTC 0點 + TZ Asia/Shanghai + NOTIFICATION_HOURS=[08] + 北京 8 點 → 傳送', async () => {
+    // mock 當前時間為 UTC 2026-05-24 00:00 = 北京 5/24 08:00
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
 
@@ -65,7 +65,7 @@ describe('调度器 - 时区 + 通知时段', () => {
       TG_CHAT_ID: 'C'
     });
 
-    // 一条订阅，5 月 31 日北京时间到期，距今 7 天
+    // 一條訂閱，5 月 31 日北京時間到期，距今 7 天
     await subRepo.save(env, {
       id: 's-netflix',
       name: 'Netflix',
@@ -93,14 +93,14 @@ describe('调度器 - 时区 + 通知时段', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('场景2：同样设置但 NOTIFICATION_HOURS=[00] → 跳过不发送', async () => {
+  it('場景2：同樣設定但 NOTIFICATION_HOURS=[00] → 跳過不傳送', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z')); // 北京 08:00
 
     await setConfig({
       JWT_SECRET: 's',
       TIMEZONE: 'Asia/Shanghai',
-      NOTIFICATION_HOURS: ['00'], // 用户配的是北京 0 点
+      NOTIFICATION_HOURS: ['00'], // 使用者配的是北京 0 點
       ENABLED_NOTIFIERS: ['telegram'],
       TG_BOT_TOKEN: 'B',
       TG_CHAT_ID: 'C'
@@ -123,7 +123,7 @@ describe('调度器 - 时区 + 通知时段', () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it('场景3：多规则订阅（7/3/1/0），到期前 3 天 → 仅 value=3 命中', async () => {
+  it('場景3：多規則訂閱（7/3/1/0），到期前 3 天 → 僅 value=3 命中', async () => {
     // 北京 5/24 08:00 → 到期 5/27 11:00 北京 → 距 3 天
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
@@ -163,7 +163,7 @@ describe('调度器 - 时区 + 通知时段', () => {
     expect(sentBody.text).not.toContain('提醒策略: 提前 7 天');
   });
 
-  it('场景4：同规则同小时第二次调用 → 去重跳过', async () => {
+  it('場景4：同規則同小時第二次呼叫 → 去重跳過', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
     await setConfig({
@@ -196,10 +196,10 @@ describe('调度器 - 时区 + 通知时段', () => {
     expect(log2.dedupedCount).toBe(1);
     expect(log2.matchedCount).toBe(1);
 
-    expect(fetchSpy).toHaveBeenCalledTimes(1); // 只发了一次
+    expect(fetchSpy).toHaveBeenCalledTimes(1); // 只發了一次
   });
 
-  it('场景5：NOTIFICATION_HOURS=["*"] 通配符不应被 padStart 误处理为 "0*"', async () => {
+  it('場景5：NOTIFICATION_HOURS=["*"] 萬用字元不應被 padStart 誤處理為 "0*"', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
     await setConfig({
@@ -229,8 +229,8 @@ describe('调度器 - 时区 + 通知时段', () => {
   });
 });
 
-describe('调度器 - 自动续订', () => {
-  it('已过期 + autoRenew=false → 保留到期日和支付历史', async () => {
+describe('排程器 - 自動續訂', () => {
+  it('已過期 + autoRenew=false → 保留到期日和支付歷史', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
     await setConfig({
@@ -251,7 +251,7 @@ describe('调度器 - 自动续订', () => {
     expect(saved.paymentHistory).toEqual([]);
   });
 
-  it('已过期 + autoRenew=true → 推进到期日 + 写 auto 支付记录', async () => {
+  it('已過期 + autoRenew=true → 推進到期日 + 寫 auto 支付記錄', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
 
@@ -267,7 +267,7 @@ describe('调度器 - 自动续订', () => {
       isActive: true,
       autoRenew: true,
       subscriptionMode: 'cycle',
-      expiryDate: '2026-04-01T00:00:00.000Z', // 已过期 ~1.5 月
+      expiryDate: '2026-04-01T00:00:00.000Z', // 已過期 ~1.5 月
       periodValue: 1,
       periodUnit: 'month',
       amount: 10,
@@ -285,8 +285,8 @@ describe('调度器 - 自动续订', () => {
   });
 });
 
-describe('调度器 - 写入日志', () => {
-  it('每次执行都写一条 sched_log', async () => {
+describe('排程器 - 寫入日誌', () => {
+  it('每次執行都寫一條 sched_log', async () => {
     await setConfig({
       JWT_SECRET: 's',
       TIMEZONE: 'UTC',
@@ -299,7 +299,7 @@ describe('调度器 - 写入日志', () => {
     expect(logs).toHaveLength(1);
   });
 
-  it('成功发送时写 notify_log', async () => {
+  it('成功傳送時寫 notify_log', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-05-24T00:00:00.000Z'));
     await setConfig({

@@ -2,14 +2,14 @@
 /**
  * Telegram 通知渠道
  *
- * 接口：MarkdownV2 + 失敗時降級純文本兜底。
- * 關鍵修覆（#81）：訂閱名含 `_*` 等特殊字符時不再炸。
+ * 介面：MarkdownV2 + 失敗時降級純文字兜底。
+ * 關鍵修覆（#81）：訂閱名含 `_*` 等特殊字元時不再炸。
  */
 import { escapeMarkdownV2, ok, fail, errorMessage } from './channel.js';
 
 /** @type {import('./channel.js').Channel} */
 /**
- * 可選 Topic ID（Forum 群組 message_thread_id）。空字符串視為未配置。
+ * 可選 Topic ID（Forum 群組 message_thread_id）。空字串視為未配置。
  * @param {any} config
  * @returns {number|undefined}
  */
@@ -66,7 +66,7 @@ export const telegramChannel = {
 
       if (result.ok) return ok('telegram', result);
 
-      // 兜底：MarkdownV2 仍解析失敗時降級純文本
+      // 兜底：MarkdownV2 仍解析失敗時降級純文字
       if (result.description && /parse entities/i.test(result.description)) {
         const r2 = await fetch(url, {
           method: 'POST',
@@ -89,7 +89,7 @@ export const telegramChannel = {
     return telegramChannel.send(
       {
         title: '訂閱管理 - 測試通知',
-        content: '這是一條來自訂閱管理系統的測試消息。如果你收到此消息，說明 Telegram 配置正常。'
+        content: '這是一條來自訂閱管理系統的測試訊息。如果你收到此訊息，說明 Telegram 配置正常。'
       },
       config
     );
@@ -97,16 +97,16 @@ export const telegramChannel = {
 };
 
 /**
- * 舊的導出函數：調用方傳 `*title*\n\n...` 拼好的 message。
+ * 舊的匯出函式：呼叫方傳 `*title*\n\n...` 拼好的 message。
  *
- * @deprecated 新代碼請用 telegramChannel.send
+ * @deprecated 新程式碼請用 telegramChannel.send
  * @param {string} message
  * @param {any} config
  * @returns {Promise<boolean>}
  */
 export async function sendTelegramNotification(message, config) {
-  // 舊調用方傳入的 message 已經是組合好的 `*title*\n\ncontent`
-  // 這里把它整體作為 content，title 留空避免重覆加包裝
+  // 舊呼叫方傳入的 message 已經是組合好的 `*title*\n\ncontent`
+  // 這裡把它整體作為 content，title 留空避免重覆加包裝
   const r = await telegramChannel.send({ title: '', content: message }, config);
   if (!r.success) console.error('[Telegram]', r.error);
   return r.success;
