@@ -43,18 +43,18 @@ async function testSingleSubscriptionNotification(id, env) {
     const calendarType = subscription.useLunar ? '農歷' : '公歷';
     const autoRenewText = subscription.autoRenew ? '是' : '否';
     const formattedAmount = formatAmount(subscription.amount, subscription.currency || 'CNY');
-    const amountText = formattedAmount ? `\n金額: ${formattedAmount}/周期` : '';
+    const amountText = formattedAmount ? `\n金額: ${formattedAmount}/週期` : '';
 
     const categoryText = subscription.category ? subscription.category : '未分類';
 
     const commonContent = `**訂閱詳情**
-類型: ${subscription.customType || '其他'}${amountText}
+型別: ${subscription.customType || '其他'}${amountText}
 分類: ${categoryText}
-日歷類型: ${calendarType}
+日歷型別: ${calendarType}
 到期日期: ${formattedExpiryDate}${lunarExpiryText}
 自動續期: ${autoRenewText}
 備注: ${subscription.notes || '無'}
-發送時間: ${currentTime}
+傳送時間: ${currentTime}
 當前時區: ${formatTimezoneDisplay(timezone)}`;
 
     const tags = extractTagsFromSubscriptions([subscription]);
@@ -72,17 +72,17 @@ async function testSingleSubscriptionNotification(id, env) {
     }
 
     if (successCount === 0) {
-      return { success: false, message: `測試通知發送失敗（已嘗試 ${attempted} 個渠道）` };
+      return { success: false, message: `測試通知傳送失敗（已嘗試 ${attempted} 個渠道）` };
     }
 
     if (failedCount > 0) {
-      return { success: true, message: `測試通知已發送：成功 ${successCount} 個，失敗 ${failedCount} 個渠道` };
+      return { success: true, message: `測試通知已傳送：成功 ${successCount} 個，失敗 ${failedCount} 個渠道` };
     }
 
-    return { success: true, message: `測試通知發送成功（共 ${successCount} 個渠道）` };
+    return { success: true, message: `測試通知傳送成功（共 ${successCount} 個渠道）` };
   } catch (error) {
-    console.error('[手動測試] 發送失敗:', error);
-    return { success: false, message: '發送時發生錯誤: ' + error.message };
+    console.error('[手動測試] 傳送失敗:', error);
+    return { success: false, message: '傳送時發生錯誤: ' + error.message };
   }
 }
 
@@ -106,7 +106,7 @@ async function handleSubscriptions(request, env, path) {
         );
       }
       const result = await createSubscription(subscription, env);
-      // 創建成功後寫入提醒規則，並同步 legacy 提醒字段（列表展示依賴）
+      // 建立成功後寫入提醒規則，並同步 legacy 提醒欄位（列表展示依賴）
       if (result.success && result.subscription) {
         try {
           const remindersRepo = await import('../../data/reminders.repo.js');
@@ -120,7 +120,7 @@ async function handleSubscriptions(request, env, path) {
           await remindersRepo.replaceForSubscription(env, result.subscription.id, rules);
           await syncLegacyReminderFields(env, result.subscription.id, rules);
         } catch (err) {
-          console.error('[subscriptions] 寫入提醒規則失敗（訂閱本身已創建）:', err);
+          console.error('[subscriptions] 寫入提醒規則失敗（訂閱本身已建立）:', err);
         }
       }
       return new Response(JSON.stringify(result), {
@@ -203,7 +203,7 @@ async function handleSubscriptions(request, env, path) {
         );
       }
       const result = await updateSubscription(id, subscription, env);
-      // 與創建路徑對稱：若 body 帶 reminderRules 則整體替換並同步 legacy
+      // 與建立路徑對稱：若 body 帶 reminderRules 則整體替換並同步 legacy
       if (result.success && Array.isArray(subscription.reminderRules)) {
         try {
           const remindersRepo = await import('../../data/reminders.repo.js');

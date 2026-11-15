@@ -1,21 +1,21 @@
 // @ts-check
 /**
- * Smoke 测试 —— 仅验证测试基础设施本身能跑起来，不耦合业务代码。
+ * Smoke 測試 —— 僅驗證測試基礎設施本身能跑起來，不耦合業務程式碼。
  *
- * 后续 Task 会替换/扩展这里的内容；现在保持最简单：
+ * 後續 Task 會替換/擴充套件這裡的內容；現在保持最簡單：
  *   - 能 import vitest API
  *   - 能 import Cloudflare Workers env
- *   - 能跑一个 Hono 实例
+ *   - 能跑一個 Hono 例項
  */
 import { describe, it, expect } from 'vitest';
 import { Hono } from 'hono';
 
 describe('smoke', () => {
-  it('vitest 跑得起来', () => {
+  it('vitest 跑得起來', () => {
     expect(1 + 1).toBe(2);
   });
 
-  it('Hono 可以实例化并响应请求', async () => {
+  it('Hono 可以例項化並響應請求', async () => {
     const app = new Hono();
     app.get('/', (c) => c.text('ok'));
 

@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 第三方 /api/notify/:token — 不依赖管理员 JWT
+ * 第三方 /api/notify/:token — 不依賴管理員 JWT
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -30,7 +30,7 @@ afterEach(() => {
 });
 
 describe('POST /api/notify/:token', () => {
-  it('未配置 token → 403（无需登录）', async () => {
+  it('未配置 token → 403（無需登入）', async () => {
     await env.SUBSCRIPTIONS_KV.put(
       'config',
       JSON.stringify({ JWT_SECRET: 'k', THIRD_PARTY_API_TOKEN: '' })
@@ -47,7 +47,7 @@ describe('POST /api/notify/:token', () => {
     expect(res.status).toBe(403);
   });
 
-  it('错误 token → 401', async () => {
+  it('錯誤 token → 401', async () => {
     await env.SUBSCRIPTIONS_KV.put(
       'config',
       JSON.stringify({
@@ -69,7 +69,7 @@ describe('POST /api/notify/:token', () => {
     expect(res.status).toBe(401);
   });
 
-  it('正确 token 无 JWT 可发送', async () => {
+  it('正確 token 無 JWT 可傳送', async () => {
     await env.SUBSCRIPTIONS_KV.put(
       'config',
       JSON.stringify({

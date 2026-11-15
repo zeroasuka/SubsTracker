@@ -16,10 +16,10 @@ async function handleAdminRequest(request, env) {
     const config = await getConfig(env);
     const user = token ? await verifyJWT(token, config.JWT_SECRET) : null;
 
-    console.log('[管理頁面] 用戶驗證結果:', !!user);
+    console.log('[管理頁面] 使用者驗證結果:', !!user);
 
     if (!user) {
-      console.log('[管理頁面] 用戶未登錄，重定向到登錄頁面');
+      console.log('[管理頁面] 使用者未登入，重定向到登入頁面');
       return new Response('', {
         status: 302,
         headers: { 'Location': '/' }
@@ -49,7 +49,7 @@ async function handleAdminRequest(request, env) {
     });
   } catch (error) {
     console.error('[管理頁面] 處理請求時出錯:', error);
-    return new Response('服務器內部錯誤', {
+    return new Response('伺服器內部錯誤', {
       status: 500,
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });

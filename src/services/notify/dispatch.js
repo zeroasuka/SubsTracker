@@ -1,8 +1,8 @@
 // @ts-check
 /**
- * 通知調度器：把一條通知並發分發到所有啟用的渠道，並把結果寫入通知日志。
+ * 通知排程器：把一條通知並發分發到所有啟用的渠道，並把結果寫入通知日誌。
  *
- * 調用方：
+ * 呼叫方：
  * - services/scheduler.js（定時到期檢查）
  * - api/handlers/test-notification.js（手動測試單個渠道）
  * - api/handlers/notify.js（第三方 /api/notify/{token}）
@@ -22,7 +22,7 @@ import { ntfyChannel } from './ntfy.js';
 import { wpushChannel } from './wpush.js';
 import { writeLog } from '../../data/notification-logs.repo.js';
 
-/** 名字到渠道實例的映射；新增渠道在此注冊即可 */
+/** 名字到渠道例項的對映；新增渠道在此注冊即可 */
 export const ALL_CHANNELS = {
   telegram: telegramChannel,
   notifyx: notifyxChannel,
@@ -40,17 +40,17 @@ export const ALL_CHANNELS = {
 /**
  * @typedef {Object} DispatchOptions
  * @property {any} [env] 若提供，會同時把每條結果寫入 notify_log
- * @property {string} [subId] 關聯的訂閱 ID（寫日志用）
- * @property {string} [ruleId] 觸發的提醒規則 ID（寫日志用）
+ * @property {string} [subId] 關聯的訂閱 ID（寫日誌用）
+ * @property {string} [ruleId] 觸發的提醒規則 ID（寫日誌用）
  * @property {Object} [metadata] 附加給 channel.send 的 metadata
- * @property {string} [logPrefix] console 日志前綴
+ * @property {string} [logPrefix] console 日誌字首
  */
 
 /**
  * 把一條通知發到所有啟用渠道。
  *
  * @param {{ title: string, content: string }} payload
- * @param {any} config 系統配置（含 ENABLED_NOTIFIERS 與各渠道字段）
+ * @param {any} config 系統配置（含 ENABLED_NOTIFIERS 與各渠道欄位）
  * @param {DispatchOptions} [options]
  * @returns {Promise<{
  *   attempted: number,
@@ -103,13 +103,13 @@ export async function dispatch(payload, config, options = {}) {
     channelResults[r.channel] = r.success;
     if (r.success) {
       successCount++;
-      console.log(`${prefix} ${r.channel} 發送成功`);
+      console.log(`${prefix} ${r.channel} 傳送成功`);
     } else {
       failedCount++;
-      console.log(`${prefix} ${r.channel} 發送失敗: ${r.error}`);
+      console.log(`${prefix} ${r.channel} 傳送失敗: ${r.error}`);
     }
 
-    // 寫通知日志（帶 env 時）
+    // 寫通知日誌（帶 env 時）
     if (options.env && options.subId) {
       try {
         await writeLog(options.env, {
@@ -123,7 +123,7 @@ export async function dispatch(payload, config, options = {}) {
           raw: r.raw
         });
       } catch (err) {
-        console.warn(`${prefix} 寫通知日志失敗:`, err);
+        console.warn(`${prefix} 寫通知日誌失敗:`, err);
       }
     }
   }
@@ -138,7 +138,7 @@ export async function dispatch(payload, config, options = {}) {
 }
 
 /**
- * 測試某個渠道（用於配置頁"測試發送"按鈕）。
+ * 測試某個渠道（用於配置頁"測試傳送"按鈕）。
  *
  * @param {string} channelName
  * @param {any} config

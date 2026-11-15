@@ -1,21 +1,21 @@
 // @ts-check
 /**
- * 调度器执行日志仓库
+ * 排程器執行日誌倉庫
  *
- * 用途：每次 Cron `scheduled` 触发都写一条聚合日志，包含本次执行的：
- *   - 起止时间、用户时区、是否在通知时段
- *   - 检查的订阅总数 / 命中提醒规则数 / 去重跳过数
- *   - 自动续订条数 / 通知发送统计
- *   - 错误（如有）
+ * 用途：每次 Cron `scheduled` 觸發都寫一條聚合日誌，包含本次執行的：
+ *   - 起止時間、使用者時區、是否在通知時段
+ *   - 檢查的訂閱總數 / 命中提醒規則數 / 去重跳過數
+ *   - 自動續訂條數 / 通知傳送統計
+ *   - 錯誤（如有）
  *
- * 配合 notification-logs（细粒度）形成"链路日志"：
- *   sched_log:{isoUtc}                  ← 一次调度的总览
- *   notify_log:{ymdh}:{sub}:{rule}:{ch} ← 该调度发出的每条通知
+ * 配合 notification-logs（細粒度）形成"鏈路日誌"：
+ *   sched_log:{isoUtc}                  ← 一次排程的總覽
+ *   notify_log:{ymdh}:{sub}:{rule}:{ch} ← 該排程發出的每條通知
  *
- * Key 规则：sched_log:{ISO_UTC}（如 sched_log:2026-05-24T17:00:00.000Z）
- *   ISO 字典序 == 时间序，便于 list 倒序读取。
+ * Key 規則：sched_log:{ISO_UTC}（如 sched_log:2026-05-24T17:00:00.000Z）
+ *   ISO 字典序 == 時間序，便於 list 倒序讀取。
  *
- * 默认 TTL：30 天。
+ * 預設 TTL：30 天。
  *
  */
 
@@ -27,22 +27,22 @@ const DEFAULT_TTL_SEC = 30 * 24 * 3600;
  * @property {string} key 完整 KV key
  * @property {string} startedAt ISO
  * @property {string} finishedAt ISO
- * @property {string} timezone 调度生效时区
- * @property {string} currentHour 用户 TZ 下的当前小时（"HH"）
- * @property {string[]} configuredHours 通知时段配置（用户 TZ 小时）
- * @property {boolean} inWindow 是否在通知时段内
- * @property {number} checkedCount 检查订阅数
- * @property {number} matchedCount 命中规则的（订阅×规则）对数
- * @property {number} dedupedCount 因去重跳过数
- * @property {number} sentCount 实际发送通知数
- * @property {number} autoRenewedCount 自动续订订阅数
+ * @property {string} timezone 排程生效時區
+ * @property {string} currentHour 使用者 TZ 下的當前小時（"HH"）
+ * @property {string[]} configuredHours 通知時段配置（使用者 TZ 小時）
+ * @property {boolean} inWindow 是否在通知時段內
+ * @property {number} checkedCount 檢查訂閱數
+ * @property {number} matchedCount 命中規則的（訂閱×規則）對數
+ * @property {number} dedupedCount 因去重跳過數
+ * @property {number} sentCount 實際傳送通知數
+ * @property {number} autoRenewedCount 自動續訂訂閱數
  * @property {string} status 'ok' | 'skipped' | 'error'
- * @property {string} [reason] 跳过原因或错误摘要
- * @property {any} [extra] 附加信息（可选）
+ * @property {string} [reason] 跳過原因或錯誤摘要
+ * @property {any} [extra] 附加資訊（可選）
  */
 
 /**
- * 写入一条调度日志。
+ * 寫入一條排程日誌。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {Omit<SchedulerLogEntry, 'key'>} entry
@@ -74,7 +74,7 @@ export async function writeLog(env, entry, opts = {}) {
 }
 
 /**
- * 取最近 N 条调度日志（按时间倒序）。
+ * 取最近 N 條排程日誌（按時間倒序）。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @param {number} [limit=20]
@@ -83,7 +83,7 @@ export async function writeLog(env, entry, opts = {}) {
 export async function getRecent(env, limit = 20) {
   const safeLimit = Math.min(200, Math.max(1, Number(limit) || 20));
 
-  // KV.list 默认升序；想要倒序需要拉全后排序
+  // KV.list 預設升序；想要倒序需要拉全後排序
   const allKeys = [];
   let cursor;
   do {
@@ -109,6 +109,6 @@ export async function getRecent(env, limit = 20) {
       }
     })
   );
-  // @ts-ignore - 过滤 null
+  // @ts-ignore - 過濾 null
   return items.filter((x) => x != null);
 }

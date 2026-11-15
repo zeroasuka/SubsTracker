@@ -14,7 +14,7 @@ async function handleThirdPartyNotify(request, env, config, url) {
 
   if (!expectedToken) {
     return new Response(
-      JSON.stringify({ message: '第三方 API 已禁用，請在後台配置訪問令牌後使用' }),
+      JSON.stringify({ message: '第三方 API 已停用，請在後臺配置訪問令牌後使用' }),
       { status: 403, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -35,7 +35,7 @@ async function handleThirdPartyNotify(request, env, config, url) {
 
     if (!content) {
       return new Response(
-        JSON.stringify({ message: '缺少必填參數 content' }),
+        JSON.stringify({ message: '缺少必填引數 content' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -54,7 +54,7 @@ async function handleThirdPartyNotify(request, env, config, url) {
 
     return new Response(
       JSON.stringify({
-        message: '發送成功',
+        message: '傳送成功',
         response: {
           errcode: 0,
           errmsg: 'ok',
@@ -64,10 +64,10 @@ async function handleThirdPartyNotify(request, env, config, url) {
       { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('[第三方API] 發送通知失敗:', error);
+    console.error('[第三方API] 傳送通知失敗:', error);
     return new Response(
       JSON.stringify({
-        message: '發送失敗',
+        message: '傳送失敗',
         response: {
           errcode: 1,
           errmsg: error.message

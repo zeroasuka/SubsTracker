@@ -1,12 +1,12 @@
 // @ts-check
 /**
- * endOfMonth 与周期加法边界
+ * endOfMonth 與週期加法邊界
  */
 import { describe, it, expect } from 'vitest';
 import { addCalendarPeriodInTimezone, getDaysBetween, getTimezoneDateParts } from '../../src/core/time.js';
 
 describe('addCalendarPeriodInTimezone endOfMonth', () => {
-  it('1月31日 +1月 endOfMonth → 2月最后一天', () => {
+  it('1月31日 +1月 endOfMonth → 2月最後一天', () => {
     const base = new Date(Date.UTC(2026, 0, 31));
     const next = addCalendarPeriodInTimezone(base, 1, 'month', 'UTC', { endOfMonth: true });
     const p = getTimezoneDateParts(next, 'UTC');
@@ -29,14 +29,14 @@ describe('addCalendarPeriodInTimezone endOfMonth', () => {
     expect(p.day).toBe(31);
   });
 
-  it('非 endOfMonth 保持历史 setUTCMonth 溢出行为可运行', () => {
+  it('非 endOfMonth 保持歷史 setUTCMonth 溢位行為可執行', () => {
     const base = new Date(Date.UTC(2026, 0, 31));
     const next = addCalendarPeriodInTimezone(base, 1, 'month', 'UTC', { endOfMonth: false });
     expect(Number.isNaN(next.getTime())).toBe(false);
   });
 });
 
-describe('getDaysBetween 边界时区', () => {
+describe('getDaysBetween 邊界時區', () => {
   it('Pacific/Kiritimati UTC+14 跨日', () => {
     // UTC 2026-05-24 10:00 = Kiritimati 5/25 00:00 附近
     const a = '2026-05-24T09:00:00Z';

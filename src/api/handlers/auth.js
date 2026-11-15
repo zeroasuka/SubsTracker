@@ -29,7 +29,7 @@ async function handleLogin(request, env) {
 
   if (await checkRateLimit(env, ip)) {
     return new Response(
-      JSON.stringify({ success: false, message: '登錄嘗試過多，請 5 分鐘後再試' }),
+      JSON.stringify({ success: false, message: '登入嘗試過多，請 5 分鐘後再試' }),
       { status: 429, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -64,8 +64,8 @@ async function handleLogin(request, env) {
   const attempts = await recordFailedAttempt(env, ip);
   const remaining = MAX_LOGIN_ATTEMPTS - attempts;
   const message = remaining > 0
-    ? `用戶名或密碼錯誤（還可嘗試 ${remaining} 次）`
-    : '登錄嘗試過多，請 5 分鐘後再試';
+    ? `使用者名稱或密碼錯誤（還可嘗試 ${remaining} 次）`
+    : '登入嘗試過多，請 5 分鐘後再試';
 
   return new Response(
     JSON.stringify({ success: false, message }),

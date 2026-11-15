@@ -1,11 +1,11 @@
 /**
  * 簡易 API 客戶端
  *
- * 用法（瀏覽器全局）：
+ * 用法（瀏覽器全域性）：
  *   <script src="/js/lib/api-client.js"></script>
  *   const r = await ApiClient.get('/api/notification-logs');
  *
- * 所有方法都返回解析後的 JSON；HTTP 非 2xx 會拋出含 status / body 的 Error。
+ * 所有方法都返回解析後的 JSON；HTTP 非 2xx 會丟擲含 status / body 的 Error。
  * 自動帶 Cookie（憑著站內 SameSite=Strict 的 token）。
  */
 (function (root) {
@@ -54,7 +54,7 @@
   }
 
   /**
-   * 簡易查詢字符串構造（None / undefined 字段過濾掉）。
+   * 簡易查詢字串構造（None / undefined 欄位過濾掉）。
    *
    * @param {Record<string, any>} params
    * @returns {string}

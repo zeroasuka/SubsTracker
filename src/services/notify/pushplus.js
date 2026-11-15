@@ -15,13 +15,13 @@ export const pushplusChannel = {
 
   async send(payload, config) {
     const v = pushplusChannel.validateConfig(config);
-    if (!v.ok) return fail('pushplus', v.error || '配置无效');
+    if (!v.ok) return fail('pushplus', v.error || '配置無效');
 
     /** @type {Record<string, any>} */
     const body = {
       token: config.PUSHPLUS_TOKEN,
-      title: payload.title || '订阅提醒',
-      content: `## ${payload.title || '订阅提醒'}\n\n${payload.content || ''}`,
+      title: payload.title || '訂閱提醒',
+      content: `## ${payload.title || '訂閱提醒'}\n\n${payload.content || ''}`,
       template: 'markdown'
     };
     if (config.PUSHPLUS_TOPIC) body.topic = config.PUSHPLUS_TOPIC;
@@ -44,13 +44,13 @@ export const pushplusChannel = {
 
   async test(config) {
     return pushplusChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条 PushPlus 测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條 PushPlus 測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版相容函式 */
 export async function sendPushPlusNotification(title, content, config) {
   const r = await pushplusChannel.send({ title, content }, config);
   if (!r.success) console.error('[PushPlus]', r.error);

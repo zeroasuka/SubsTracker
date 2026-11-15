@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 配置读写与敏感字段脱敏
+ * 配置讀寫與敏感欄位脫敏
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -44,12 +44,12 @@ beforeEach(clearKv);
 afterEach(() => vi.restoreAllMocks());
 
 describe('GET /api/config', () => {
-  it('未登录 401', async () => {
+  it('未登入 401', async () => {
     const res = await app.request('/api/config', {}, env);
     expect(res.status).toBe(401);
   });
 
-  it('敏感字段脱敏 + CONFIGURED 标记', async () => {
+  it('敏感欄位脫敏 + CONFIGURED 標記', async () => {
     const cookie = await loginCookie();
     const res = await app.request('/api/config', { headers: { Cookie: cookie } }, env);
     expect(res.status).toBe(200);
@@ -65,7 +65,7 @@ describe('GET /api/config', () => {
 });
 
 describe('POST /api/config', () => {
-  it('空字符串不误清空已有 Token', async () => {
+  it('空字串不誤清空已有 Token', async () => {
     const cookie = await loginCookie();
     const res = await app.request(
       '/api/config',
@@ -88,7 +88,7 @@ describe('POST /api/config', () => {
     expect(stored.TIMEZONE).toBe('UTC');
   });
 
-  it('CLEAR_SECRET_FIELDS 可显式清空', async () => {
+  it('CLEAR_SECRET_FIELDS 可顯式清空', async () => {
     const cookie = await loginCookie();
     await app.request(
       '/api/config',
@@ -108,7 +108,7 @@ describe('POST /api/config', () => {
 });
 
 describe('POST /api/test-notification (WPUSH)', () => {
-  it('未保存的空渠道和 Topic 覆盖已保存值', async () => {
+  it('未儲存的空渠道和 Topic 覆蓋已儲存值', async () => {
     const cookie = await loginCookie();
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ code: 0 }), { status: 200 })

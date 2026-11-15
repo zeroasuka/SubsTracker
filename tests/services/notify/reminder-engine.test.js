@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 提醒规则触发引擎单元测试（表驱动）
+ * 提醒規則觸發引擎單元測試（表驅動）
  */
 import { describe, it, expect } from 'vitest';
 import { shouldFire } from '../../../src/services/notify/reminder-engine.js';
@@ -23,17 +23,17 @@ function rule(r) {
 }
 
 describe('shouldFire 通用', () => {
-  it('isEnabled=false → 不触发', () => {
+  it('isEnabled=false → 不觸發', () => {
     const r = rule({ isEnabled: false });
     expect(shouldFire(r, { daysDiff: 7, hoursDiff: 168 }).fire).toBe(false);
   });
 
-  it('未知 type → 不触发', () => {
+  it('未知 type → 不觸發', () => {
     const r = rule({ type: /** @type {any} */ ('xxx') });
     expect(shouldFire(r, { daysDiff: 7, hoursDiff: 168 }).fire).toBe(false);
   });
 
-  it('NaN diff → 不触发', () => {
+  it('NaN diff → 不觸發', () => {
     const r = rule({});
     expect(shouldFire(r, { daysDiff: NaN, hoursDiff: 0 }).fire).toBe(false);
   });
@@ -45,11 +45,11 @@ describe('before_expiry / days', () => {
     [7, 7, true, '到期前 7 天命中 value=7'],
     [7, 8, false, '到期前 8 天不命中 value=7'],
     [7, 6, false, '到期前 6 天不命中 value=7'],
-    [7, 0, false, '到期当天不命中 value=7（要 on_expiry 类型）'],
-    [7, -1, false, '已过期 1 天不命中 before_expiry'],
+    [7, 0, false, '到期當天不命中 value=7（要 on_expiry 型別）'],
+    [7, -1, false, '已過期 1 天不命中 before_expiry'],
     [3, 3, true, '到期前 3 天命中 value=3'],
     [1, 1, true, '到期前 1 天命中 value=1'],
-    [0, 0, true, 'value=0 到期当天命中（等价 on_expiry）'],
+    [0, 0, true, 'value=0 到期當天命中（等價 on_expiry）'],
     [0, 1, false, 'value=0 非到期日不命中']
   ];
   cases.forEach(([v, days, expected, desc]) => {
@@ -66,7 +66,7 @@ describe('before_expiry / hours', () => {
     expect(shouldFire(r, { daysDiff: 0, hoursDiff: 12 }).fire).toBe(true);
   });
 
-  it('value=12, hoursDiff=11 → 不命中（精确匹配）', () => {
+  it('value=12, hoursDiff=11 → 不命中（精確匹配）', () => {
     const r = rule({ type: 'before_expiry', value: 12, unit: 'hours' });
     expect(shouldFire(r, { daysDiff: 0, hoursDiff: 11 }).fire).toBe(false);
   });
@@ -78,7 +78,7 @@ describe('before_expiry / hours', () => {
     expect(shouldFire(r, { daysDiff: 0, hoursDiff: 1 }).fire).toBe(false);
   });
 
-  it('hoursDiff=-1（已过期）→ 不命中', () => {
+  it('hoursDiff=-1（已過期）→ 不命中', () => {
     const r = rule({ type: 'before_expiry', value: 12, unit: 'hours' });
     expect(shouldFire(r, { daysDiff: 0, hoursDiff: -1 }).fire).toBe(false);
   });
@@ -108,40 +108,40 @@ describe('after_expiry', () => {
     expect(shouldFire(r, { daysDiff: 7, hoursDiff: 168 }).fire).toBe(false);
   });
 
-  it('已过期 + 没有 lastFireAt → 首次触发', () => {
+  it('已過期 + 沒有 lastFireAt → 首次觸發', () => {
     const r = rule({ type: 'after_expiry', value: 0, unit: 'days', repeatInterval: 24 });
     expect(shouldFire(r, { daysDiff: -1, hoursDiff: -24 }).fire).toBe(true);
   });
 
-  it('已过期 + lastFireAt 在 interval 内 → 不重复触发', () => {
+  it('已過期 + lastFireAt 在 interval 內 → 不重複觸發', () => {
     const r = rule({ type: 'after_expiry', value: 0, unit: 'days', repeatInterval: 24 });
     const result = shouldFire(r, {
       daysDiff: -2,
       hoursDiff: -48,
       lastFireAtIso: '2026-05-24T10:00:00Z',
-      nowIso: '2026-05-24T18:00:00Z' // 8h 后，未到 24h
+      nowIso: '2026-05-24T18:00:00Z' // 8h 後，未到 24h
     });
     expect(result.fire).toBe(false);
   });
 
-  it('已过期 + lastFireAt 超过 interval → 重新触发', () => {
+  it('已過期 + lastFireAt 超過 interval → 重新觸發', () => {
     const r = rule({ type: 'after_expiry', value: 0, unit: 'days', repeatInterval: 24 });
     const result = shouldFire(r, {
       daysDiff: -2,
       hoursDiff: -48,
       lastFireAtIso: '2026-05-23T10:00:00Z',
-      nowIso: '2026-05-24T18:00:00Z' // 32h 后
+      nowIso: '2026-05-24T18:00:00Z' // 32h 後
     });
     expect(result.fire).toBe(true);
   });
 
-  it('未指定 repeatInterval → 默认 24h', () => {
+  it('未指定 repeatInterval → 預設 24h', () => {
     const r = rule({ type: 'after_expiry', value: 0, unit: 'days', repeatInterval: null });
     const result = shouldFire(r, {
       daysDiff: -2,
       hoursDiff: -48,
       lastFireAtIso: '2026-05-24T10:00:00Z',
-      nowIso: '2026-05-24T20:00:00Z' // 10h 后，未到 24h
+      nowIso: '2026-05-24T20:00:00Z' // 10h 後，未到 24h
     });
     expect(result.fire).toBe(false);
   });

@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * auth + currency 边界
+ * auth + currency 邊界
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 // @ts-ignore
@@ -22,40 +22,40 @@ afterEach(() => {
 describe('convertToCNY', () => {
   const rates = { CNY: 1, USD: 7, EUR: 8 };
 
-  it('CNY 原样', () => {
+  it('CNY 原樣', () => {
     expect(convertToCNY(10, 'CNY', rates)).toBe(10);
   });
 
-  it('USD 用 rate 换算 amount/rate', () => {
+  it('USD 用 rate 換算 amount/rate', () => {
     expect(convertToCNY(14, 'USD', rates)).toBe(2);
   });
 
-  it('未知币种不抛错，返回原金额', () => {
+  it('未知幣種不拋錯，返回原金額', () => {
     expect(convertToCNY(5, 'XYZ', rates)).toBe(5);
   });
 
-  it('非正金额返回 0', () => {
+  it('非正金額返回 0', () => {
     expect(convertToCNY(0, 'USD', rates)).toBe(0);
     expect(convertToCNY(-1, 'USD', rates)).toBe(0);
   });
 });
 
 describe('getDynamicRates', () => {
-  it('API 失败时返回 FALLBACK', async () => {
+  it('API 失敗時返回 FALLBACK', async () => {
     vi.stubGlobal('fetch', async () => ({ ok: false, status: 500 }));
     const rates = await getDynamicRates(env);
     expect(rates.CNY).toBe(1);
     expect(rates.USD).toBeTruthy();
   });
 
-  it('API 成功时合并并缓存', async () => {
+  it('API 成功時合併並快取', async () => {
     vi.stubGlobal('fetch', async () => ({
       ok: true,
       json: async () => ({ rates: { USD: 7.1, EUR: 8.2 } })
     }));
     const rates = await getDynamicRates(env);
     expect(rates.USD).toBe(7.1);
-    // 第二次应走缓存，不再 fetch
+    // 第二次應走快取，不再 fetch
     let called = 0;
     vi.stubGlobal('fetch', async () => {
       called++;
@@ -67,13 +67,13 @@ describe('getDynamicRates', () => {
   });
 });
 
-describe('JWT 边界', () => {
+describe('JWT 邊界', () => {
   it('空 token/secret → null', async () => {
     expect(await verifyJWT('', 's')).toBeNull();
     expect(await verifyJWT('a.b.c', '')).toBeNull();
   });
 
-  it('格式错误 → null', async () => {
+  it('格式錯誤 → null', async () => {
     expect(await verifyJWT('not-a-jwt', 's')).toBeNull();
   });
 });

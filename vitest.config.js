@@ -1,9 +1,9 @@
 // @ts-check
 /**
- * Vitest 配置文件
+ * Vitest 配置檔案
  *
- * 用 @cloudflare/vitest-pool-workers 把单测跑在真实的 workerd 运行时里，
- * 这样 KV / fetch / crypto.subtle 等 Cloudflare 平台 API 不需要 mock 即可工作。
+ * 用 @cloudflare/vitest-pool-workers 把單測跑在真實的 workerd 執行時裡，
+ * 這樣 KV / fetch / crypto.subtle 等 Cloudflare 平臺 API 不需要 mock 即可工作。
  *
  * 用法：
  *   npm test          # 跑一次（CI）
@@ -12,7 +12,7 @@
 import { defineWorkersConfig } from '@cloudflare/vitest-pool-workers/config';
 
 export default defineWorkersConfig({
-  // 让 vite 把 .html 当作文本字符串 import（与 wrangler 生产环境的 text loader 行为一致）
+  // 讓 vite 把 .html 當作文字字串 import（與 wrangler 生產環境的 text loader 行為一致）
   assetsInclude: ['**/*.html'],
   test: {
     include: ['tests/**/*.test.js'],
@@ -23,7 +23,7 @@ export default defineWorkersConfig({
           compatibilityFlags: ['nodejs_compat'],
           kvNamespaces: ['SUBSCRIPTIONS_KV']
         },
-        // 让生产环境用的 .html 文本 import 在测试中也能工作
+        // 讓生產環境用的 .html 文字 import 在測試中也能工作
         wrangler: {
           configPath: './wrangler.toml'
         }

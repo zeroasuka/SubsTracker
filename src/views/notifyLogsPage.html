@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,12 +53,12 @@
             <i class="fas fa-cog mr-1"></i>系統配置
           </a>
           <a href="/api/logout" class="text-gray-700 hover:text-red-600 border-b-2 border-transparent hover:border-red-300 px-3 py-2 rounded-md text-sm font-medium transition">
-            <i class="fas fa-sign-out-alt mr-1"></i>退出登錄
+            <i class="fas fa-sign-out-alt mr-1"></i>退出登入
           </a>
         </div>
 
         <div class="flex items-center md:hidden ml-auto">
-          <button id="mobile-menu-btn" type="button" aria-expanded="false" aria-label="切換導航菜單"
+          <button id="mobile-menu-btn" type="button" aria-expanded="false" aria-label="切換導航選單"
             class="text-gray-600 hover:text-indigo-600 focus:outline-none p-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors">
             <i class="fas fa-bars text-xl"></i>
           </button>
@@ -82,7 +82,7 @@
           <i class="fas fa-cog w-6 text-center mr-2"></i>系統配置
         </a>
         <a href="/api/logout" class="block px-3 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-red-50 hover:text-red-600 active:bg-red-100 transition-colors">
-          <i class="fas fa-sign-out-alt w-6 text-center mr-2"></i>退出登錄
+          <i class="fas fa-sign-out-alt w-6 text-center mr-2"></i>退出登入
         </a>
       </div>
     </div>
@@ -100,7 +100,7 @@
         </p>
       </div>
       <button id="reloadBtn" class="btn-primary text-white px-4 py-2 rounded-md text-sm font-medium self-start md:self-auto">
-        <i class="fas fa-sync mr-1"></i>刷新數據
+        <i class="fas fa-sync mr-1"></i>重新整理資料
       </button>
     </div>
 
@@ -119,7 +119,7 @@
         <div id="metricFailed" class="text-3xl font-bold text-red-600 mt-1">-</div>
       </div>
       <div class="stat-card text-center">
-        <div class="text-xs text-gray-500 uppercase font-medium tracking-wide">最近一次發送</div>
+        <div class="text-xs text-gray-500 uppercase font-medium tracking-wide">最近一次傳送</div>
         <div id="metricLatest" class="text-sm font-semibold text-gray-700 mt-2">-</div>
       </div>
     </div>
@@ -178,11 +178,11 @@
       </div>
     </div>
 
-    <!-- 調度日志快速預覽（與訂閱列表"批量操作"區一致的折疊風格） -->
+    <!-- 排程日誌快速預覽（與訂閱列表"批次操作"區一致的折疊風格） -->
     <details class="bg-white rounded-lg shadow-md mb-6">
       <summary class="cursor-pointer px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg">
         <i class="fas fa-clock text-indigo-600 mr-2"></i>最近 10 次定時任務執行
-        <span class="text-xs text-gray-500 ml-2">點擊展開查看鏈路明細</span>
+        <span class="text-xs text-gray-500 ml-2">點選展開檢視鏈路明細</span>
       </summary>
       <div id="schedLogs" class="px-4 pb-4 mt-2 space-y-2 text-xs"></div>
     </details>
@@ -202,7 +202,7 @@
             </tr>
           </thead>
           <tbody id="logsBody" class="divide-y divide-gray-200 bg-white">
-            <tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">加載中…</td></tr>
+            <tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">載入中…</td></tr>
           </tbody>
         </table>
       </div>
@@ -212,20 +212,20 @@
   <script src="/js/lib/api-client.js"></script>
   <script>
     /**
-     * 通知歷史頁腳本
+     * 通知歷史頁尾本
      *
-     * 數據源：
+     * 資料來源：
      *   GET /api/notification-logs?subId=&channel=&status=&since=&limit=
      *   GET /api/scheduler-logs?limit=10
      *   GET /api/config （取 TIMEZONE 用於本地時間顯示）
-     *   GET /api/subscriptions （映射 subId → 訂閱名）
+     *   GET /api/subscriptions （對映 subId → 訂閱名）
      */
     let userTz = 'UTC';
     let subNameMap = {};
 
     function fmtTime(iso) {
       try {
-        return new Date(iso).toLocaleString('zh-CN', { timeZone: userTz });
+        return new Date(iso).toLocaleString('zh-TW', { timeZone: userTz });
       } catch {
         return iso;
       }
@@ -233,7 +233,7 @@
 
     function ruleLabel(ruleId) {
       if (!ruleId || ruleId === 'none' || ruleId === 'null') {
-        return '<span class="text-gray-400">手動/默認</span>';
+        return '<span class="text-gray-400">手動/預設</span>';
       }
       return '<span class="text-xs font-mono bg-gray-100 px-1.5 py-0.5 rounded">' + ruleId.slice(0, 8) + '</span>';
     }
@@ -292,12 +292,12 @@
 
     async function loadSchedLogs() {
       const target = document.getElementById('schedLogs');
-      target.innerHTML = '<div class="text-gray-400 px-2 py-4">加載中…</div>';
+      target.innerHTML = '<div class="text-gray-400 px-2 py-4">載入中…</div>';
       try {
         const data = await ApiClient.get('/api/scheduler-logs', { limit: 10 });
         const logs = (data && data.logs) || [];
         if (logs.length === 0) {
-          target.innerHTML = '<div class="text-gray-400 px-2 py-4">暫無調度記錄</div>';
+          target.innerHTML = '<div class="text-gray-400 px-2 py-4">暫無排程記錄</div>';
           return;
         }
         target.innerHTML = logs.map(l => {
@@ -306,13 +306,13 @@
           return '<div class="flex flex-wrap items-center gap-3 border-b border-gray-100 py-1.5 last:border-0">'
             + '<span class="text-gray-500 font-mono">' + escapeHtml(fmtTime(l.startedAt)) + '</span>'
             + '<span class="' + color + ' font-medium">' + statusLabel + '</span>'
-            + '<span class="text-gray-700">' + escapeHtml(l.timezone) + ' · 本地小時 <b>' + escapeHtml(l.currentHour) + '</b> · 在窗口=' + (l.inWindow ? '是' : '否') + '</span>'
-            + '<span class="text-gray-700">命中 <b>' + l.matchedCount + '</b> / 去重 <b>' + l.dedupedCount + '</b> / 發送 <b>' + l.sentCount + '</b> / 續訂 <b>' + l.autoRenewedCount + '</b></span>'
+            + '<span class="text-gray-700">' + escapeHtml(l.timezone) + ' · 本地小時 <b>' + escapeHtml(l.currentHour) + '</b> · 在視窗=' + (l.inWindow ? '是' : '否') + '</span>'
+            + '<span class="text-gray-700">命中 <b>' + l.matchedCount + '</b> / 去重 <b>' + l.dedupedCount + '</b> / 傳送 <b>' + l.sentCount + '</b> / 續訂 <b>' + l.autoRenewedCount + '</b></span>'
             + (l.reason ? '<span class="text-gray-500 italic">' + escapeHtml(l.reason) + '</span>' : '')
             + '</div>';
         }).join('');
       } catch (err) {
-        target.innerHTML = '<div class="text-red-500 px-2 py-4">加載失敗：' + escapeHtml(err.message) + '</div>';
+        target.innerHTML = '<div class="text-red-500 px-2 py-4">載入失敗：' + escapeHtml(err.message) + '</div>';
       }
     }
 
@@ -331,7 +331,7 @@
       }
 
       const tbody = document.getElementById('logsBody');
-      tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">加載中…</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">載入中…</td></tr>';
       try {
         const data = await ApiClient.get('/api/notification-logs', params);
         const logs = (data && data.logs) || [];
@@ -358,11 +358,11 @@
             + '</tr>';
         }).join('');
       } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-red-500">加載失敗：' + escapeHtml(err.message) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-12 text-center text-red-500">載入失敗：' + escapeHtml(err.message) + '</td></tr>';
       }
     }
 
-    // ─── 事件綁定 ───
+    // ─── 事件繫結 ───
     document.getElementById('reloadBtn').addEventListener('click', () => {
       loadLogs();
       loadSchedLogs();
@@ -372,7 +372,7 @@
       if (el) el.addEventListener('change', loadLogs);
     });
 
-    // ─── 實時時鐘（與其他 admin 頁一致的實現）───
+    // ─── 即時時鐘（與其他 admin 頁一致的實現）───
     function formatTimezoneDisplay(tz) {
       try {
         const now = new Date();
@@ -390,7 +390,7 @@
           'UTC': '世界標準時間',
           'Asia/Shanghai': '中國標準時間',
           'Asia/Hong_Kong': '香港時間',
-          'Asia/Taipei': '台北時間',
+          'Asia/Taipei': '臺北時間',
           'Asia/Singapore': '新加坡時間',
           'Asia/Tokyo': '日本時間',
           'Asia/Seoul': '韓國時間',
@@ -415,7 +415,7 @@
       const updateClock = () => {
         try {
           const now = new Date();
-          const timeStr = now.toLocaleString('zh-CN', {
+          const timeStr = now.toLocaleString('zh-TW', {
             timeZone: userTz,
             year: 'numeric', month: '2-digit', day: '2-digit',
             hour: '2-digit', minute: '2-digit', second: '2-digit'
@@ -431,7 +431,7 @@
       setInterval(updateClock, 1000);
     }
 
-    // ─── 移動端菜單（與其他 admin 頁一致的實現）───
+    // ─── 移動端選單（與其他 admin 頁一致的實現）───
     function setupMobileMenu() {
       const btn = document.getElementById('mobile-menu-btn');
       const menu = document.getElementById('mobile-menu');

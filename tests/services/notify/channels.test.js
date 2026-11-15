@@ -1,12 +1,12 @@
 // @ts-check
 /**
- * 通知渠道适配器单元测试
+ * 通知渠道介面卡單元測試
  *
- * 关键：用 vi.spyOn(global, 'fetch') mock fetch，确保不真实联网。
- * 重点覆盖：
- * - Telegram MarkdownV2 转义（修复 #81）
- * - 各渠道成功 / 失败路径
- * - dispatch 部分失败不抛异常 + 写日志
+ * 關鍵：用 vi.spyOn(global, 'fetch') mock fetch，確保不真實聯網。
+ * 重點覆蓋：
+ * - Telegram MarkdownV2 轉義（修復 #81）
+ * - 各渠道成功 / 失敗路徑
+ * - dispatch 部分失敗不拋異常 + 寫日誌
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -26,7 +26,7 @@ import { webhookChannel } from '../../../src/services/notify/webhook.js';
 import { dispatch, ALL_CHANNELS, testChannel } from '../../../src/services/notify/dispatch.js';
 import { query } from '../../../src/data/notification-logs.repo.js';
 
-/** 构造一个 Response */
+/** 構造一個 Response */
 function jsonResponse(body, init = {}) {
   return new Response(JSON.stringify(body), {
     status: init.status || 200,
@@ -44,8 +44,8 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('escapeMarkdownV2 (#81 修复)', () => {
-  it('转义 _* 等 13 个字符', () => {
+describe('escapeMarkdownV2 (#81 修復)', () => {
+  it('轉義 _* 等 13 個字元', () => {
     expect(escapeMarkdownV2('a_b')).toBe('a\\_b');
     expect(escapeMarkdownV2('Adobe_Premiere_Pro')).toBe('Adobe\\_Premiere\\_Pro');
     expect(escapeMarkdownV2('a*b')).toBe('a\\*b');
@@ -53,19 +53,19 @@ describe('escapeMarkdownV2 (#81 修复)', () => {
     expect(escapeMarkdownV2('a[b](c)')).toBe('a\\[b\\]\\(c\\)');
   });
 
-  it('普通字符不动', () => {
+  it('普通字元不動', () => {
     expect(escapeMarkdownV2('hello world 你好 123')).toBe('hello world 你好 123');
   });
 });
 
 describe('telegramChannel', () => {
-  it('validateConfig：缺 token / chat_id 返回错误', () => {
+  it('validateConfig：缺 token / chat_id 返回錯誤', () => {
     expect(telegramChannel.validateConfig({}).ok).toBe(false);
     expect(telegramChannel.validateConfig({ TG_BOT_TOKEN: 'x' }).ok).toBe(false);
     expect(telegramChannel.validateConfig({ TG_BOT_TOKEN: 'x', TG_CHAT_ID: 'y' }).ok).toBe(true);
   });
 
-  it('send 含下划线名称会做 MarkdownV2 转义', async () => {
+  it('send 含下劃線名稱會做 MarkdownV2 轉義', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
       captured(url, init);
@@ -86,7 +86,7 @@ describe('telegramChannel', () => {
     expect(body.text).toContain('\\!');
   });
 
-  it('MarkdownV2 失败时降级纯文本兜底', async () => {
+  it('MarkdownV2 失敗時降級純文字兜底', async () => {
     let call = 0;
     vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
       call++;
@@ -104,7 +104,7 @@ describe('telegramChannel', () => {
     expect(call).toBe(2);
   });
 
-  it('Telegram API 拒绝 → 返回失败', async () => {
+  it('Telegram API 拒絕 → 返回失敗', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       jsonResponse({ ok: false, description: 'chat not found' })
     );
@@ -116,7 +116,7 @@ describe('telegramChannel', () => {
     expect(r.error).toContain('chat not found');
   });
 
-  it('网络异常 → 返回失败', async () => {
+  it('網路異常 → 返回失敗', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('network down'));
     const r = await telegramChannel.send(
       { title: 'X', content: 'Y' },
@@ -148,20 +148,20 @@ describe('其它渠道 happy path', () => {
   cases.forEach(([name, ch, config, body]) => {
     it(`${name} 成功`, async () => {
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(body));
-      const r = await ch.send({ title: '测试', content: '内容' }, config);
+      const r = await ch.send({ title: '測試', content: '內容' }, config);
       expect(r.success).toBe(true);
       expect(r.channel).toBe(name);
     });
 
-    it(`${name} 配置缺失 → 直接失败`, async () => {
-      const r = await ch.send({ title: '测试', content: '内容' }, {});
+    it(`${name} 配置缺失 → 直接失敗`, async () => {
+      const r = await ch.send({ title: '測試', content: '內容' }, {});
       expect(r.success).toBe(false);
     });
   });
 });
 
-describe('barkChannel 自定义服务器 URL', () => {
-  it('BARK_SERVER 含路径 → 直接 POST 全 URL', async () => {
+describe('barkChannel 自定義伺服器 URL', () => {
+  it('BARK_SERVER 含路徑 → 直接 POST 全 URL', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url) => {
       captured(url);
@@ -175,7 +175,7 @@ describe('barkChannel 自定义服务器 URL', () => {
     expect(captured.mock.calls[0][0]).toBe('https://my-bark.example/MYKEY');
   });
 
-  it('BARK_SERVER 无路径 → 拼 /push + device_key', async () => {
+  it('BARK_SERVER 無路徑 → 拼 /push + device_key', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
       captured(url, init);
@@ -190,7 +190,7 @@ describe('barkChannel 自定义服务器 URL', () => {
     expect(body.device_key).toBe('KKK');
   });
 
-  it('BARK_SERVER 含 user:pass → 发送 Basic Auth header', async () => {
+  it('BARK_SERVER 含 user:pass → 傳送 Basic Auth header', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
       captured(url, init);
@@ -208,7 +208,7 @@ describe('barkChannel 自定义服务器 URL', () => {
 });
 
 describe('webhookChannel 模板', () => {
-  it('应用 {{title}} {{content}} 模板', async () => {
+  it('應用 {{title}} {{content}} 模板', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
       captured(init);
@@ -228,7 +228,7 @@ describe('webhookChannel 模板', () => {
     expect(body.tags).toBe('標籤：會員、月度');
   });
 
-  it('模板格式错误 → 退回默认结构', async () => {
+  it('模板格式錯誤 → 退回預設結構', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
       captured(init);
@@ -246,8 +246,8 @@ describe('webhookChannel 模板', () => {
   });
 });
 
-describe('dispatch（多渠道并发 + 日志）', () => {
-  it('未启用任何渠道 → 直接返回 0', async () => {
+describe('dispatch（多渠道併發 + 日誌）', () => {
+  it('未啟用任何渠道 → 直接返回 0', async () => {
     const r = await dispatch(
       { title: 'T', content: 'C' },
       { ENABLED_NOTIFIERS: [] }
@@ -255,13 +255,13 @@ describe('dispatch（多渠道并发 + 日志）', () => {
     expect(r.attempted).toBe(0);
   });
 
-  it('部分渠道失败 → 整体不抛，结果数组完整', async () => {
+  it('部分渠道失敗 → 整體不拋，結果陣列完整', async () => {
     let call = 0;
     vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
       call++;
       if (call === 1) return jsonResponse({ ok: true, result: {} });          // telegram OK
       if (call === 2) return jsonResponse({ status: 'queued' });               // notifyx OK
-      throw new Error('webhook 网络故障');                                      // webhook 抛
+      throw new Error('webhook 網路故障');                                      // webhook 拋
     });
 
     const config = {
@@ -281,7 +281,7 @@ describe('dispatch（多渠道并发 + 日志）', () => {
     expect(r.channelResults.webhook).toBe(false);
   });
 
-  it('带 env + subId 时把每条结果写入 notify_log', async () => {
+  it('帶 env + subId 時把每條結果寫入 notify_log', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ ok: true, result: {} }));
     const config = {
       ENABLED_NOTIFIERS: ['telegram'],
@@ -303,7 +303,7 @@ describe('dispatch（多渠道并发 + 日志）', () => {
 });
 
 describe('testChannel', () => {
-  it('未知渠道返回失败', async () => {
+  it('未知渠道返回失敗', async () => {
     const r = await testChannel('unknown', {});
     expect(r.success).toBe(false);
     expect(r.error).toContain('未知渠道');
@@ -317,14 +317,14 @@ describe('testChannel', () => {
   });
 });
 
-describe('注册表完整性', () => {
-  it('ALL_CHANNELS 包含 11 个渠道', () => {
+describe('通道註冊表完整性', () => {
+  it('ALL_CHANNELS 包含 11 個渠道', () => {
     expect(Object.keys(ALL_CHANNELS).sort()).toEqual(
       ['bark', 'email', 'gotify', 'notifyx', 'ntfy', 'pushplus', 'serverchan', 'telegram', 'webhook', 'wechatbot', 'wpush'].sort()
     );
   });
 
-  it('每个渠道都有 4 个必备字段', () => {
+  it('每個渠道都有 4 個必備欄位', () => {
     for (const [name, ch] of Object.entries(ALL_CHANNELS)) {
       expect(ch.name).toBe(name);
       expect(typeof ch.validateConfig).toBe('function');
@@ -338,11 +338,11 @@ describe('注册表完整性', () => {
 import { ntfyChannel } from '../../../src/services/notify/ntfy.js';
 
 describe('ntfyChannel', () => {
-  it('validateConfig：缺 topic 失败', () => {
+  it('validateConfig：缺 topic 失敗', () => {
     expect(ntfyChannel.validateConfig({}).ok).toBe(false);
   });
 
-  it('send 成功路径', async () => {
+  it('send 成功路徑', async () => {
     const original = globalThis.fetch;
     globalThis.fetch = async (url, init) => {
       expect(String(url)).toContain('https://ntfy.sh/my-topic');
@@ -364,13 +364,13 @@ describe('ntfyChannel', () => {
 });
 
 describe('wpushChannel', () => {
-  it('validateConfig：缺 apikey 失败', () => {
+  it('validateConfig：缺 apikey 失敗', () => {
     expect(wpushChannel.validateConfig({}).ok).toBe(false);
     expect(wpushChannel.validateConfig({ WPUSH_APIKEY: '  ' }).ok).toBe(false);
     expect(wpushChannel.validateConfig({ WPUSH_APIKEY: 'WPUSHkey' }).ok).toBe(true);
   });
 
-  it('send 成功路径：code===0，可选 channel/topic_code', async () => {
+  it('send 成功路徑：code===0，可選 channel/topic_code', async () => {
     const captured = vi.fn();
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (url, init) => {
       captured(url, init);
@@ -378,7 +378,7 @@ describe('wpushChannel', () => {
     });
 
     const r = await wpushChannel.send(
-      { title: '标题', content: '正文' },
+      { title: '標題', content: '正文' },
       { WPUSH_APIKEY: 'WPUSHsecret', WPUSH_CHANNEL: 'feishu', WPUSH_TOPIC_CODE: 'topic-1' }
     );
     expect(r.success).toBe(true);
@@ -387,14 +387,14 @@ describe('wpushChannel', () => {
     const body = JSON.parse(captured.mock.calls[0][1].body);
     expect(body).toEqual({
       apikey: 'WPUSHsecret',
-      title: '标题',
+      title: '標題',
       content: '正文',
       channel: 'feishu',
       topic_code: 'topic-1'
     });
   });
 
-  it('send：code!==0 → 失败，且错误信息不含 apikey', async () => {
+  it('send：code!==0 → 失敗，且錯誤資訊不含 apikey', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       jsonResponse({ code: 40001, message: 'invalid WPUSHshould-not-leak', apikey: 'WPUSHshould-not-leak' })
     );
@@ -408,13 +408,13 @@ describe('wpushChannel', () => {
     expect(JSON.stringify(r.raw)).not.toContain('WPUSHshould-not-leak');
   });
 
-  it('第三方回显 apikey 时通知日志不保存密钥', async () => {
+  it('第三方回顯 apikey 時通知日誌不儲存金鑰', async () => {
     const apiKey = 'WPUSHlog-secret';
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       jsonResponse({ code: 40001, message: `invalid ${apiKey}`, apikey: apiKey })
     );
     await dispatch(
-      { title: '测试', content: '正文' },
+      { title: '測試', content: '正文' },
       { ENABLED_NOTIFIERS: ['wpush'], WPUSH_APIKEY: apiKey },
       { env, subId: 'wpush-sub' }
     );
@@ -423,18 +423,18 @@ describe('wpushChannel', () => {
     expect(JSON.stringify(logs)).not.toContain(apiKey);
   });
 
-  it('网络异常信息回显 apikey 时脱敏', async () => {
+  it('網路異常資訊回顯 apikey 時脫敏', async () => {
     const apiKey = 'WPUSHnetwork-secret';
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error(`network failed for ${apiKey}`));
     const result = await wpushChannel.send(
-      { title: '测试', content: '正文' },
+      { title: '測試', content: '正文' },
       { WPUSH_APIKEY: apiKey }
     );
     expect(result.success).toBe(false);
     expect(result.error).not.toContain(apiKey);
   });
 
-  it('配置缺失 → 直接失败', async () => {
+  it('配置缺失 → 直接失敗', async () => {
     const r = await wpushChannel.send({ title: 'T', content: 'C' }, {});
     expect(r.success).toBe(false);
   });

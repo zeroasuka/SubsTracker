@@ -1,4 +1,4 @@
-// 页面模板 - 使用 text import 避免嵌套模板字面量问题
+// 頁面模板 - 使用 text import 避免巢狀模板字面量問題
 import themeResourcesHtml from './theme-resources.html';
 import loginPageHtml from './loginPage.html';
 import adminPageHtml from './adminPage.html';
@@ -6,7 +6,7 @@ import configPageHtml from './configPage.html';
 import dashboardPageHtml from './dashboardPage.html';
 import notifyLogsPageHtml from './notifyLogsPage.html';
 
-// themeResources 需要注入到每个页面模板中
+// themeResources 需要注入到每個頁面模板中
 function injectTheme(html) {
   return html.replace(/\$\{themeResources\}/g, themeResourcesHtml);
 }

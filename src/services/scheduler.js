@@ -1,27 +1,27 @@
-// 注：本文件暫不啟用 // @ts-check，因 lunar 庫返回類型分支較多，類型清理推遲到後續 Task。
+// 注：本檔案暫不啟用 // @ts-check，因 lunar 庫返回型別分支較多，型別清理推遲到後續 Task。
 /**
- * 定時任務調度器
+ * 定時任務排程器
  *
  * ── 修覆的核心問題（#91 / #52 / #166 根因）─────────────────
- * 舊調度器把"當前 UTC 時刻的小時"當作"用戶本地小時"來對比 NOTIFICATION_HOURS，
- * 配合"通知時段語義不一致"的文檔表述，造成大量"不響 / 錯時響"。
+ * 舊排程器把"當前 UTC 時刻的小時"當作"使用者本地小時"來對比 NOTIFICATION_HOURS，
+ * 配合"通知時段語義不一致"的文件表述，造成大量"不響 / 錯時響"。
  *
  * 修覆：
- * 1. 統一時區基準：通過 getNowInTimezone(config.TIMEZONE) 取用戶 TZ 下的 hourString
- *    與 NOTIFICATION_HOURS（按用戶 TZ 解釋）比對，語義清晰。
- * 2. 多提醒規則：從 reminders.repo 加載每個訂閱的規則數組，逐條調
+ * 1. 統一時區基準：通過 getNowInTimezone(config.TIMEZONE) 取使用者 TZ 下的 hourString
+ *    與 NOTIFICATION_HOURS（按使用者 TZ 解釋）比對，語義清晰。
+ * 2. 多提醒規則：從 reminders.repo 載入每個訂閱的規則陣列，逐條調
  *    reminder-engine.shouldFire 判斷（不再單點 reminderUnit/reminderValue）。
  * 3. 去重粒度細化：dedup key 改為 (subId × ruleId × ymdh-local)，避免一條訂閱
  *    多規則相互打架。
- * 4. 結構化日志：每次執行寫一條 sched_log；每條通知發送（成功/失敗）寫 notify_log。
+ * 4. 結構化日誌：每次執行寫一條 sched_log；每條通知傳送（成功/失敗）寫 notify_log。
  *
- * 數據流：
+ * 資料流：
  *   Cron tick →
  *     ensureMigrations →
  *     load config + subs + rules →
  *     check window →
  *     for each (sub, rule):
- *       - daysDiff/hoursDiff 用 getDaysBetween（按用戶 TZ）算
+ *       - daysDiff/hoursDiff 用 getDaysBetween（按使用者 TZ）算
  *       - 自動續訂（針對 sub 整體，僅算一次）
  *       - shouldFire? → dedupe → dispatch.send → notify_log
  *     → sched_log
@@ -85,7 +85,7 @@ async function writeLastFireAt(env, subId, ruleId, iso) {
 }
 
 /**
- * 入口：被 Cron 觸發的 scheduled() 調用。
+ * 入口：被 Cron 觸發的 scheduled() 呼叫。
  *
  * @param {{ SUBSCRIPTIONS_KV: KVNamespace }} env
  * @returns {Promise<import('../data/scheduler-logs.repo.js').SchedulerLogEntry|null>}
@@ -104,7 +104,7 @@ export async function checkExpiringSubscriptions(env) {
           .map((h) => {
             const up = h.toUpperCase();
             if (up === '*' || up === 'ALL') return '*';
-            // 僅對純數字做兩位補齊；'*' 之類通配符保持原樣
+            // 僅對純數字做兩位補齊；'*' 之類萬用字元保持原樣
             return /^\d+$/.test(h) ? h.padStart(2, '0') : up;
           })
       : [];
@@ -121,7 +121,7 @@ export async function checkExpiringSubscriptions(env) {
     let sentCount = 0;
     let autoRenewedCount = 0;
 
-    // 不在通知時段：不發送但仍跑自動續訂（業務上希望續訂總能發生）
+    // 不在通知時段：不傳送但仍跑自動續訂（業務上希望續訂總能發生）
     /** @type {Array<{ sub: any, rule: any, daysDiff: number, hoursDiff: number }>} */
     const candidates = [];
 
@@ -132,7 +132,7 @@ export async function checkExpiringSubscriptions(env) {
       if (!subscription.isActive) continue;
       activeCount++;
 
-      // 計算到期天數（按用戶 TZ）
+      // 計算到期天數（按使用者 TZ）
       let expiryDate = new Date(subscription.expiryDate);
       let daysDiff = getDaysBetween(now.utc, expiryDate, timezone);
       let hoursDiff = (expiryDate.getTime() - now.utc.getTime()) / MS_PER_HOUR;
@@ -147,7 +147,7 @@ export async function checkExpiringSubscriptions(env) {
           expiryDate = new Date(renewed.next.expiryDate);
           daysDiff = getDaysBetween(now.utc, expiryDate, timezone);
           hoursDiff = (expiryDate.getTime() - now.utc.getTime()) / MS_PER_HOUR;
-          // 用續訂後的對象作後續判斷
+          // 用續訂後的物件作後續判斷
           subscription.expiryDate = renewed.next.expiryDate;
           subscription.startDate = renewed.next.startDate;
           subscription.lastPaymentDate = renewed.next.lastPaymentDate;
@@ -155,7 +155,7 @@ export async function checkExpiringSubscriptions(env) {
         }
       }
 
-      // 加載規則；老訂閱沒有規則時，用穩定 id 的 legacy 規則（避免每 tick 新 UUID 打穿 dedupe）
+      // 載入規則；老訂閱沒有規則時，用穩定 id 的 legacy 規則（避免每 tick 新 UUID 打穿 dedupe）
       let rules = await remindersRepo.listForSubscription(env, subscription.id);
       if (rules.length === 0) {
         const legacy = remindersRepo.legacyFieldToRule(subscription);
@@ -186,7 +186,7 @@ export async function checkExpiringSubscriptions(env) {
       console.log(`[定時任務] 已自動續訂 ${updatedSubsToSave.length} 個訂閱`);
     }
 
-    // 不在通知時段 → 寫日志後返回
+    // 不在通知時段 → 寫日誌後返回
     if (!inWindow) {
       const entry = await schedulerLogsRepo.writeLog(env, {
         startedAt: startedAtIso,
@@ -201,12 +201,12 @@ export async function checkExpiringSubscriptions(env) {
         sentCount: 0,
         autoRenewedCount,
         status: 'skipped',
-        reason: `當前${timezone} ${now.hourString}點不在允許發送的小時 [${normalizedHours.join(',') || '未限制=每小時'}] 內（正常跳過，不會發通知）`
+        reason: `當前${timezone} ${now.hourString}點不在允許傳送的小時 [${normalizedHours.join(',') || '未限制=每小時'}] 內（正常跳過，不會發通知）`
       });
       return entry;
     }
 
-    // 在時段：先查重（不預占），發送成功後再寫 dedupe / lastFire
+    // 在時段：先查重（不預佔），傳送成功後再寫 dedupe / lastFire
     /** @type {Array<{ sub: any, rule: any, daysDiff: number, hoursDiff: number, dedupeKey: string }>} */
     const ready = [];
     const nowParts = {
@@ -242,7 +242,7 @@ export async function checkExpiringSubscriptions(env) {
         status: matchedCount > 0 ? 'skipped' : 'ok',
         reason:
           matchedCount > 0
-            ? `命中 ${matchedCount} 條規則但全部在去重窗口內（跳過 ${dedupedCount}）`
+            ? `命中 ${matchedCount} 條規則但全部在去重視窗內（跳過 ${dedupedCount}）`
             : '本次未命中任何提醒規則'
       });
       return entry;
@@ -310,7 +310,7 @@ export async function checkExpiringSubscriptions(env) {
       status: dispatchResult.failedCount > 0 && sentCount === 0 ? 'error' : 'ok',
       reason:
         dispatchResult.attempted > 0
-          ? `發送到 ${dispatchResult.attempted} 個渠道，成功 ${dispatchResult.successCount} / 失敗 ${dispatchResult.failedCount}`
+          ? `傳送到 ${dispatchResult.attempted} 個渠道，成功 ${dispatchResult.successCount} / 失敗 ${dispatchResult.failedCount}`
           : '未啟用任何通知渠道',
       extra: {
         candidates: ready.map((c) => ({
@@ -347,7 +347,7 @@ export async function checkExpiringSubscriptions(env) {
 }
 
 /**
- * 自動續訂：把已過期的訂閱按周期推進，生成 auto 類型支付記錄。
+ * 自動續訂：把已過期的訂閱按週期推進，生成 auto 型別支付記錄。
  *
  * 按"cycle / reset 模式 + 公歷 / 農歷分支。
  *
@@ -392,7 +392,7 @@ function autoRenew(sub, now, timezone, config) {
   } else {
     while (getTimezoneMidnightTimestamp(expiryDate, tz) <= nowMidnight) {
       if (mode === 'reset') {
-        // 重置：從「現在」所在本地日重新起算一個周期
+        // 重置：從「現在」所在本地日重新起算一個週期
         const p = getTimezoneDateParts(now, tz);
         expiryDate = atTimezoneMidnight(p.year, p.month, p.day);
       }
@@ -419,7 +419,7 @@ function autoRenew(sub, now, timezone, config) {
     amount: sub.amount || 0,
     type: 'auto',
     note: `自動續訂 (${mode === 'reset' ? '重置模式' : '接續模式'}${
-      periodsAdded > 1 ? ', 補齊' + periodsAdded + '周期' : ''
+      periodsAdded > 1 ? ', 補齊' + periodsAdded + '週期' : ''
     })`,
     periodStart: newStartDate.toISOString(),
     periodEnd: newExpiryDate.toISOString()

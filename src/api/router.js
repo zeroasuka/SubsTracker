@@ -59,7 +59,7 @@ async function handleApiRequest(request, env) {
     return handleImportBackup(request, env);
   }
 
-  // 新增路由：提醒規則 / 通知日志 / 調度日志（提醒規則 / 通知日志 / 調度日志）
+  // 新增路由：提醒規則 / 通知日誌 / 排程日誌（提醒規則 / 通知日誌 / 排程日誌）
   const extraResponse = await handleExtraRoutes(request, env, path);
   if (extraResponse) return extraResponse;
 

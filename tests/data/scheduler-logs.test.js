@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * 调度日志仓库单元测试
+ * 排程日誌倉庫單元測試
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 // @ts-ignore
@@ -16,7 +16,7 @@ async function clearKv() {
 beforeEach(clearKv);
 
 describe('scheduler-logs.repo', () => {
-  it('writeLog → getRecent 返回 1 条', async () => {
+  it('writeLog → getRecent 返回 1 條', async () => {
     await writeLog(env, {
       startedAt: '2026-05-24T17:00:00.000Z',
       finishedAt: '2026-05-24T17:00:01.000Z',
@@ -37,7 +37,7 @@ describe('scheduler-logs.repo', () => {
     expect(r[0].timezone).toBe('Asia/Shanghai');
   });
 
-  it('getRecent 按时间倒序', async () => {
+  it('getRecent 按時間倒序', async () => {
     await writeLog(env, { startedAt: '2026-05-22T00:00:00.000Z', timezone: 'UTC', currentHour: '00', status: 'ok' });
     await writeLog(env, { startedAt: '2026-05-24T00:00:00.000Z', timezone: 'UTC', currentHour: '00', status: 'ok' });
     await writeLog(env, { startedAt: '2026-05-23T00:00:00.000Z', timezone: 'UTC', currentHour: '00', status: 'ok' });
@@ -59,7 +59,7 @@ describe('scheduler-logs.repo', () => {
     expect(r).toHaveLength(2);
   });
 
-  it('status=skipped + reason 字段保留', async () => {
+  it('status=skipped + reason 欄位保留', async () => {
     await writeLog(env, {
       startedAt: '2026-05-24T00:00:00.000Z',
       timezone: 'Asia/Shanghai',

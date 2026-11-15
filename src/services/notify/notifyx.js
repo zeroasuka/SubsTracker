@@ -15,13 +15,13 @@ export const notifyxChannel = {
 
   async send(payload, config) {
     const v = notifyxChannel.validateConfig(config);
-    if (!v.ok) return fail('notifyx', v.error || '配置无效');
+    if (!v.ok) return fail('notifyx', v.error || '配置無效');
 
     const url = `https://www.notifyx.cn/api/v1/send/${config.NOTIFYX_API_KEY}`;
     const body = JSON.stringify({
-      title: payload.title || '订阅提醒',
-      content: `## ${payload.title || '订阅提醒'}\n\n${payload.content || ''}`,
-      description: '订阅提醒'
+      title: payload.title || '訂閱提醒',
+      content: `## ${payload.title || '訂閱提醒'}\n\n${payload.content || ''}`,
+      description: '訂閱提醒'
     });
 
     try {
@@ -41,15 +41,15 @@ export const notifyxChannel = {
 
   async test(config) {
     return notifyxChannel.send(
-      { title: '订阅管理 - 测试通知', content: '这是一条 NotifyX 测试通知。' },
+      { title: '訂閱管理 - 測試通知', content: '這是一條 NotifyX 測試通知。' },
       config
     );
   }
 };
 
-/** @deprecated 旧版兼容函数 */
+/** @deprecated 舊版相容函式 */
 export async function sendNotifyXNotification(title, content, _description, config) {
-  // 早期接口签名带一个 description 参数；新接口已弃用此字段
+  // 早期介面簽名帶一個 description 引數；新介面已棄用此欄位
   void _description;
   const r = await notifyxChannel.send({ title, content }, config);
   if (!r.success) console.error('[NotifyX]', r.error);

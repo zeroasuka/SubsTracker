@@ -1,7 +1,7 @@
 // @ts-check
 /**
- * 订阅 CRUD 生命周期
- * 覆盖：创建/读取/更新/删除、缺字段、删除清理 reminder_rules、toggle、续订
+ * 訂閱 CRUD 生命週期
+ * 覆蓋：建立/讀取/更新/刪除、缺欄位、刪除清理 reminder_rules、toggle、續訂
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 // @ts-ignore
@@ -39,7 +39,7 @@ async function loginCookie() {
 
 beforeEach(clearKv);
 
-describe('保存过期订阅时的自动续订设置', () => {
+describe('儲存過期訂閱時的自動續訂設定', () => {
   const expiredDate = '2026-04-01';
   const expiredIso = '2026-03-31T16:00:00.000Z';
 
@@ -50,7 +50,7 @@ describe('保存过期订阅时的自动续订设置', () => {
 
   afterEach(() => vi.useRealTimers());
 
-  it.each([false, true])('新建时关闭自动续订应保留过去的到期日（农历=%s）', async (useLunar) => {
+  it.each([false, true])('新建時關閉自動續訂應保留過去的到期日（農曆=%s）', async (useLunar) => {
     const cookie = await loginCookie();
     const res = await app.request('/api/subscriptions', {
       method: 'POST',
@@ -73,7 +73,7 @@ describe('保存过期订阅时的自动续订设置', () => {
     { useLunar: true, autoRenew: false },
     { useLunar: false, autoRenew: undefined },
     { useLunar: true, autoRenew: undefined }
-  ])('编辑时关闭或沿用已关闭的自动续订应保留到期日（%j）', async ({ useLunar, autoRenew }) => {
+  ])('編輯時關閉或沿用已關閉的自動續訂應保留到期日（%j）', async ({ useLunar, autoRenew }) => {
     const cookie = await loginCookie();
     await subRepo.save(env, {
       id: 'expired', name: 'Expired', expiryDate: expiredIso,
@@ -94,7 +94,7 @@ describe('保存过期订阅时的自动续订设置', () => {
     expect(saved.paymentHistory).toEqual([]);
   });
 
-  it.each([false, true])('开启自动续订时新建和编辑仍推进过期日期（农历=%s）', async (useLunar) => {
+  it.each([false, true])('開啟自動續訂時新建和編輯仍推進過期日期（農曆=%s）', async (useLunar) => {
     const cookie = await loginCookie();
     const fields = {
       name: 'Renewing', expiryDate: expiredDate, periodValue: 1,
@@ -120,8 +120,8 @@ describe('保存过期订阅时的自动续订设置', () => {
   });
 });
 
-describe('订阅 CRUD', () => {
-  it('创建订阅成功并写入默认提醒规则', async () => {
+describe('訂閱 CRUD', () => {
+  it('建立訂閱成功並寫入預設提醒規則', async () => {
     const cookie = await loginCookie();
     const res = await app.request(
       '/api/subscriptions',
@@ -146,7 +146,7 @@ describe('订阅 CRUD', () => {
     expect(rules.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('缺 name/expiryDate → 失败', async () => {
+  it('缺 name/expiryDate → 失敗', async () => {
     const cookie = await loginCookie();
     const res = await app.request(
       '/api/subscriptions',
@@ -161,7 +161,7 @@ describe('订阅 CRUD', () => {
     expect(body.success).toBe(false);
   });
 
-  it('列表返回 reminderRules 摘要字段', async () => {
+  it('列表返回 reminderRules 摘要欄位', async () => {
     const cookie = await loginCookie();
     await app.request(
       '/api/subscriptions',
@@ -185,7 +185,7 @@ describe('订阅 CRUD', () => {
     expect(list[0].reminderRulesSummary).toMatch(/30|提前/);
   });
 
-  it('更新订阅名称', async () => {
+  it('更新訂閱名稱', async () => {
     const cookie = await loginCookie();
     const create = await app.request(
       '/api/subscriptions',
@@ -217,7 +217,7 @@ describe('订阅 CRUD', () => {
     expect(got.name).toBe('New');
   });
 
-  it('删除订阅同时清理 reminder_rules', async () => {
+  it('刪除訂閱同時清理 reminder_rules', async () => {
     const cookie = await loginCookie();
     const create = await app.request(
       '/api/subscriptions',
@@ -242,7 +242,7 @@ describe('订阅 CRUD', () => {
     expect(await remindersRepo.listForSubscription(env, id)).toEqual([]);
   });
 
-  it('toggle-status 停用/启用', async () => {
+  it('toggle-status 停用/啟用', async () => {
     const cookie = await loginCookie();
     const create = await app.request(
       '/api/subscriptions',
