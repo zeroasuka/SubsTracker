@@ -45,7 +45,7 @@ function buildTemplateData(payload, config) {
         .map((t) => t.trim())
     : [];
   const tagsBlock = tagsArray.length ? tagsArray.map((t) => `- ${t}`).join('\n') : '';
-  const tagsLine = tagsArray.length ? '標簽：' + tagsArray.join('、') : '';
+  const tagsLine = tagsArray.length ? '標籤：' + tagsArray.join('、') : '';
   const timestamp = formatLocalDate(new Date(), config?.TIMEZONE || 'UTC', 'datetime');
   const formattedMessage = [
     payload.title,

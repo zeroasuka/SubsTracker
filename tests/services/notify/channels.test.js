@@ -216,7 +216,7 @@ describe('webhookChannel 模板', () => {
     });
 
     await webhookChannel.send(
-      { title: '到期', content: 'Netflix 即将到期', metadata: { tags: ['会员', '月度'] } },
+      { title: '到期', content: 'Netflix 即將到期', metadata: { tags: ['會員', '月度'] } },
       {
         WEBHOOK_URL: 'https://x.example',
         WEBHOOK_TEMPLATE: JSON.stringify({ msg: '{{title}}: {{content}}', tags: '{{tagsLine}}' })
@@ -224,8 +224,8 @@ describe('webhookChannel 模板', () => {
     );
 
     const body = JSON.parse(captured.mock.calls[0][0].body);
-    expect(body.msg).toBe('到期: Netflix 即将到期');
-    expect(body.tags).toBe('标签：会员、月度');
+    expect(body.msg).toBe('到期: Netflix 即將到期');
+    expect(body.tags).toBe('標籤：會員、月度');
   });
 
   it('模板格式错误 → 退回默认结构', async () => {
